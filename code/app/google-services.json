@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1057724732049",
+    "project_id": "javenture-a1bf7",
+    "storage_bucket": "javenture-a1bf7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1057724732049:android:09058ea4e9403d81a56530",
+        "android_client_info": {
+          "package_name": "com.example.javenture"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBmZIN3oM-zcLam3heEvGdlPnIY874loyo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
