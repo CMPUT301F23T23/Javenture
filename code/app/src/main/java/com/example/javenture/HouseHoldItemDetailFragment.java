@@ -7,13 +7,14 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.javenture.databinding.FragmentFirstBinding;
+import com.example.javenture.databinding.FragmentHouseholdItemDetailBinding;
 
-public class FirstFragment extends Fragment {
+public class HouseHoldItemDetailFragment extends Fragment {
 
-    private FragmentFirstBinding binding;
+    private FragmentHouseholdItemDetailBinding binding;
 
     @Override
     public View onCreateView(
@@ -21,7 +22,7 @@ public class FirstFragment extends Fragment {
             Bundle savedInstanceState
     ) {
 
-        binding = FragmentFirstBinding.inflate(inflater, container, false);
+        binding = FragmentHouseholdItemDetailBinding.inflate(inflater, container, false);
         return binding.getRoot();
 
     }
@@ -29,13 +30,8 @@ public class FirstFragment extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-//        binding.buttonFirst.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                NavHostFragment.findNavController(FirstFragment.this)
-//                        .navigate(R.id.action_FirstFragment_to_SecondFragment);
-//            }
-//        });
+        NavController navController = NavHostFragment.findNavController(HouseHoldItemDetailFragment.this);
+
     }
 
     @Override
