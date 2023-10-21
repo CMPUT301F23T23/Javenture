@@ -8,7 +8,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.view.View;
 
-import androidx.core.view.WindowCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -23,6 +22,8 @@ public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
+    private AuthenticationService authService;
+    private UserProfile userProfile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,9 +34,31 @@ public class MainActivity extends AppCompatActivity {
 
         setSupportActionBar(binding.toolbar);
 
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_auth);
         appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+
+        authService = new AuthenticationService();
+        if (authService.getCurrentUser() == null) {
+            authService.signInAnonymously(new AuthenticationService.OnSignInListener() {
+                @Override
+                public void onSignIn() {
+                    userProfile = new UserProfile(authService.getCurrentUser().getUid());
+                    Snackbar.make(binding.getRoot(), "Signed in anonymously", Snackbar.LENGTH_LONG)
+                            .setAnchorView(R.id.fab)
+                            .setAction("Action", null).show();
+                }
+                @Override
+                public void onSignInFailed() {
+                    Snackbar.make(binding.getRoot(), "Sign in failed", Snackbar.LENGTH_LONG)
+                            .setAnchorView(R.id.fab)
+                            .setAction("Action", null).show();
+                }
+            });
+        }
+        userProfile = new UserProfile(authService.getCurrentUser().getUid());
+
+
 
         binding.fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -71,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onSupportNavigateUp() {
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_auth);
         return NavigationUI.navigateUp(navController, appBarConfiguration)
                 || super.onSupportNavigateUp();
     }
