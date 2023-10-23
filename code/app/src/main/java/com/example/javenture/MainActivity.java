@@ -22,8 +22,6 @@ public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
-    private AuthenticationService authService;
-    private UserProfile userProfile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,36 +36,6 @@ public class MainActivity extends AppCompatActivity {
         appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 
-        authService = new AuthenticationService();
-        if (authService.getCurrentUser() == null) {
-            authService.signInAnonymously(new AuthenticationService.OnSignInListener() {
-                @Override
-                public void onSignIn() {
-                    userProfile = new UserProfile(authService.getCurrentUser().getUid());
-                    Snackbar.make(binding.getRoot(), "Signed in anonymously", Snackbar.LENGTH_LONG)
-                            .setAnchorView(R.id.fab)
-                            .setAction("Action", null).show();
-                }
-                @Override
-                public void onSignInFailed() {
-                    Snackbar.make(binding.getRoot(), "Sign in failed", Snackbar.LENGTH_LONG)
-                            .setAnchorView(R.id.fab)
-                            .setAction("Action", null).show();
-                }
-            });
-        }
-        userProfile = new UserProfile(authService.getCurrentUser().getUid());
-
-
-
-        binding.fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAnchorView(R.id.fab)
-                        .setAction("Action", null).show();
-            }
-        });
     }
 
     @Override
