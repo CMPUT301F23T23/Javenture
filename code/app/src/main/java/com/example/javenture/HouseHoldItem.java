@@ -3,7 +3,9 @@ package com.example.javenture;
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class HouseHoldItem {
     private String description;
@@ -16,6 +18,7 @@ public class HouseHoldItem {
     private List<URI> photoURIs;
     private List<Tag> tags;
 
+    public HouseHoldItem() { }
     public HouseHoldItem(String description, String make, LocalDate datePurchased, double price, String serialNumber, String comment, String model, List<URI> photoURIs, List<Tag> tags) {
         this.description = description;
         this.make = make;
@@ -26,6 +29,19 @@ public class HouseHoldItem {
         this.model = model;
         this.photoURIs = photoURIs;
         this.tags = tags;
+    }
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("description", description);
+        map.put("make", make);
+        map.put("datePurchased", getFormattedDatePurchased());
+        map.put("price", price);
+        map.put("serialNumber", serialNumber);
+        map.put("comment", comment);
+        map.put("model", model);
+        // TODO photos and tags
+        return map;
     }
 
     public String getDescription() {
@@ -41,7 +57,7 @@ public class HouseHoldItem {
     }
 
     public String getFormattedDatePurchased() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM, dd, yyyy");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d, yyyy");
         return datePurchased.format(formatter);
     }
 

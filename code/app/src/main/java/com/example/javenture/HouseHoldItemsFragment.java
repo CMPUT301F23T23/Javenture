@@ -27,6 +27,7 @@ public class HouseHoldItemsFragment extends Fragment {
     private RecyclerView householdItemList;
     private HouseHoldItemsAdapter houseHoldItemsAdapter;
     private HouseHoldItemViewModel houseHoldItemViewModel;
+    private HouseHoldItemRepository houseHoldItemRepository;
 
     @Override
     public View onCreateView(
@@ -53,10 +54,20 @@ public class HouseHoldItemsFragment extends Fragment {
                 }
             });
         }
+        houseHoldItemRepository = new HouseHoldItemRepository(authService.getCurrentUser());
 
         householdItemList = binding.householdItemList;
         householdItemList.setLayoutManager(new LinearLayoutManager(this.getContext()));
         houseHoldItemViewModel = new ViewModelProvider(requireActivity()).get(HouseHoldItemViewModel.class);
+
+        // add all items from db to view model
+        houseHoldItemRepository.fetchItems(items -> {
+            houseHoldItemViewModel.clear();
+            for (HouseHoldItem item : items) {
+                houseHoldItemViewModel.addHouseHoldItem(item);
+            }
+        });
+
         // observe changes to the household items
         houseHoldItemViewModel.getHouseHoldItems().observe(getViewLifecycleOwner(), houseHoldItems -> {
             houseHoldItemsAdapter.notifyDataSetChanged();
@@ -66,8 +77,8 @@ public class HouseHoldItemsFragment extends Fragment {
         houseHoldItemsAdapter = new HouseHoldItemsAdapter(this.getContext(), houseHoldItemViewModel);
         householdItemList.setAdapter(houseHoldItemsAdapter);
 
-        return binding.getRoot();
 
+        return binding.getRoot();
     }
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
@@ -75,12 +86,9 @@ public class HouseHoldItemsFragment extends Fragment {
 
         NavController navController = NavHostFragment.findNavController(HouseHoldItemsFragment.this);
 
-        // add one dummy item
-        ArrayList<URI> dummyImages = new ArrayList<>();
-        ArrayList<Tag> dummyTags = new ArrayList<>();
-        HouseHoldItem dummyItem = new HouseHoldItem("Silver Refrigerator", "Samsung", LocalDate.of(2023, 9, 10), 1500, "", "", "ABCD123", dummyImages, dummyTags);
-        houseHoldItemViewModel.addHouseHoldItem(dummyItem);
-
+        binding.addButton.setOnClickListener(v -> {
+            navController.navigate(R.id.add_item_action);
+        });
 
 
     }
