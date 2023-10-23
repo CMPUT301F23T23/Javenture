@@ -41,7 +41,7 @@ public class HouseHoldItem {
     }
 
     public String getFormattedDatePurchased() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM, dd, yyyy");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d, yyyy");
         return datePurchased.format(formatter);
     }
 

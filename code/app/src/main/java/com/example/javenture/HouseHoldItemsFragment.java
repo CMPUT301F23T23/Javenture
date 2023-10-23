@@ -81,6 +81,9 @@ public class HouseHoldItemsFragment extends Fragment {
         HouseHoldItem dummyItem = new HouseHoldItem("Silver Refrigerator", "Samsung", LocalDate.of(2023, 9, 10), 1500, "", "", "ABCD123", dummyImages, dummyTags);
         houseHoldItemViewModel.addHouseHoldItem(dummyItem);
 
+        binding.addButton.setOnClickListener(v -> {
+            navController.navigate(R.id.add_item_action);
+        });
 
 
     }
