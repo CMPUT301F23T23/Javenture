@@ -19,6 +19,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 public class HouseHoldItemDetailFragment extends Fragment {
 
@@ -29,6 +30,9 @@ public class HouseHoldItemDetailFragment extends Fragment {
     private TextInputEditText descriptionEditText;
     private TextInputEditText valueEditText;
     private TextInputEditText dateEditText;
+
+    private HouseHoldItemRepository houseHoldItemRepository;
+    private AuthenticationService authService;
 
 
     @Override
@@ -44,6 +48,9 @@ public class HouseHoldItemDetailFragment extends Fragment {
         descriptionEditText = binding.descriptionEditText;
         valueEditText = binding.valueEditText;
         dateEditText = binding.datePurchasedEditText;
+
+        authService = new AuthenticationService();
+        houseHoldItemRepository = new HouseHoldItemRepository(authService.getCurrentUser());
 
         return binding.getRoot();
 
@@ -118,8 +125,11 @@ public class HouseHoldItemDetailFragment extends Fragment {
                 return;
             }
 
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.ENGLISH);
+
             // TODO add item to database
-            HouseHoldItem houseHoldItem = new HouseHoldItem(description, make, LocalDate.parse(date), Double.parseDouble(value), serialNumber, "", model, null, null);
+            HouseHoldItem houseHoldItem = new HouseHoldItem(description, make, LocalDate.parse(date, formatter), Double.parseDouble(value), serialNumber, "", model, null, null);
+            houseHoldItemRepository.addItem(houseHoldItem);
 
             navController.navigate(R.id.confirm_action);
         });

@@ -46,4 +46,8 @@ public class HouseHoldItemViewModel extends ViewModel {
         }
     }
 
+    public void clear() {
+        Objects.requireNonNull(houseHoldItems.getValue()).clear();
+    }
+
 }
