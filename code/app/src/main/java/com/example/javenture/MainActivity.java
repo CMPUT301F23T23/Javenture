@@ -10,9 +10,11 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.javenture.databinding.ActivityMainBinding;
+import com.google.android.material.appbar.MaterialToolbar;
 
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toolbar;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -61,5 +63,9 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         return NavigationUI.navigateUp(navController, appBarConfiguration)
                 || super.onSupportNavigateUp();
+    }
+
+    public MaterialToolbar getToolbar() {
+        return binding.toolbar;
     }
 }

@@ -59,6 +59,7 @@ public class HouseHoldItemsAdapter extends RecyclerView.Adapter<HouseHoldItemsAd
 
         HouseHoldItemsViewHolder(View itemView) {
             super(itemView);
+            itemView.setOnClickListener(this);
             description = itemView.findViewById(R.id.description);
             make = itemView.findViewById(R.id.make);
             datePurchased = itemView.findViewById(R.id.date_purchased);

@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -80,12 +81,26 @@ public class HouseHoldItemsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+//        MainActivity mainActivity = (MainActivity) getActivity();
+//        if (mainActivity != null) {
+//            mainActivity.getToolbar().setTitle("HouseHold Items");
+//        }
+
         NavController navController = NavHostFragment.findNavController(HouseHoldItemsFragment.this);
 
         binding.addButton.setOnClickListener(v -> {
             navController.navigate(R.id.add_item_action);
         });
 
+        houseHoldItemsAdapter.setOnItemClickListener(new HouseHoldItemsAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(int position) {
+                HouseHoldItemsFragmentDirections.EditItemAction action = HouseHoldItemsFragmentDirections.editItemAction();
+                action.setItem(houseHoldItemViewModel.getHouseHoldItem(position));
+                action.setSelectedItemIndex(position);
+                navController.navigate(action);
+            }
+        });
 
     }
 
