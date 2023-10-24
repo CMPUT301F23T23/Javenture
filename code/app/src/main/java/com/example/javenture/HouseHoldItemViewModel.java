@@ -46,8 +46,22 @@ public class HouseHoldItemViewModel extends ViewModel {
         }
     }
 
+    /**
+     * Empty the list.
+     */
     public void clear() {
         Objects.requireNonNull(houseHoldItems.getValue()).clear();
     }
 
+    /**
+     * Get the total value of all items in the list
+     * @return total value
+     */
+    public double getTotalEstimatedValue() {
+        double total = 0;
+        for (HouseHoldItem item : Objects.requireNonNull(houseHoldItems.getValue())) {
+            total += item.getPrice();
+        }
+        return total;
+    }
 }

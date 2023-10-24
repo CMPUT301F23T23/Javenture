@@ -16,10 +16,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.javenture.databinding.FragmentHouseholdItemsBinding;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.net.URI;
-
 public class HouseHoldItemsFragment extends Fragment {
 
     private FragmentHouseholdItemsBinding binding;
@@ -71,7 +67,7 @@ public class HouseHoldItemsFragment extends Fragment {
         // observe changes to the household items
         houseHoldItemViewModel.getHouseHoldItems().observe(getViewLifecycleOwner(), houseHoldItems -> {
             houseHoldItemsAdapter.notifyDataSetChanged();
-//            updateTotalMonthlyCharge();
+            updateTotalEstimatedValue();
         });
 
         houseHoldItemsAdapter = new HouseHoldItemsAdapter(this.getContext(), houseHoldItemViewModel);
@@ -97,6 +93,10 @@ public class HouseHoldItemsFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+    public void updateTotalEstimatedValue() {
+        binding.totalEstimatedValue.setText(String.format("%.2f", houseHoldItemViewModel.getTotalEstimatedValue()));
     }
 
 }
