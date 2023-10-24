@@ -35,6 +35,7 @@ public class HouseHoldItemDetailFragment extends Fragment {
     private AuthenticationService authService;
 
 
+
     @Override
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container,
@@ -58,6 +59,11 @@ public class HouseHoldItemDetailFragment extends Fragment {
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        HouseHoldItem selectedItem = HouseHoldItemDetailFragmentArgs.fromBundle(getArguments()).getItem();
+        int selectedItemIndex = HouseHoldItemDetailFragmentArgs.fromBundle(getArguments()).getSelectedItemIndex();
+
+        updateUI(selectedItem);
 
         NavController navController = NavHostFragment.findNavController(HouseHoldItemDetailFragment.this);
 
@@ -127,13 +133,34 @@ public class HouseHoldItemDetailFragment extends Fragment {
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.ENGLISH);
 
-            // TODO add item to database
             HouseHoldItem houseHoldItem = new HouseHoldItem(description, make, LocalDate.parse(date, formatter), Double.parseDouble(value), serialNumber, "", model, null, null);
             houseHoldItemRepository.addItem(houseHoldItem);
 
             navController.navigate(R.id.confirm_action);
         });
 
+    }
+
+    /**
+     * Update the UI based on the selected item
+     * @param item
+     */
+    private void updateUI(HouseHoldItem item) {
+        MainActivity mainActivity = (MainActivity) getActivity();
+        if (mainActivity != null) {
+            if (item == null) {
+                mainActivity.getToolbar().setTitle("Add Item");
+                return;
+            }
+            mainActivity.getToolbar().setTitle("Edit Item");
+        }
+
+        makeEditText.setText(item.getMake());
+        modelEditText.setText(item.getModel());
+        serialNumberEditText.setText(item.getSerialNumber());
+        descriptionEditText.setText(item.getDescription());
+        valueEditText.setText(String.format("%.2f", item.getPrice()));
+        dateEditText.setText(item.getFormattedDatePurchased());
     }
 
     @Override

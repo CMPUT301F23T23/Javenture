@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/HouseHoldItemsFragment"
         android:name="com.example.javenture.HouseHoldItemsFragment"
-        android:label="HouseHoldItemsFragment"
+        android:label="HouseHold Items"
         tools:layout="@layout/fragment_household_items">
 
         <action
@@ -22,11 +22,20 @@
     <fragment
         android:id="@+id/HouseHoldItemDetailFragment"
         android:name="com.example.javenture.HouseHoldItemDetailFragment"
-        android:label="HouseHoldItemDetailFragment"
+        android:label="Add Item"
         tools:layout="@layout/fragment_household_item_detail">
 
         <action
             android:id="@+id/confirm_action"
             app:destination="@id/HouseHoldItemsFragment" />
+        <argument
+            android:name="item"
+            app:argType="com.example.javenture.HouseHoldItem"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <argument
+            android:name="selectedItemIndex"
+            app:argType="integer"
+            android:defaultValue="-1" />
     </fragment>
 </navigation>
