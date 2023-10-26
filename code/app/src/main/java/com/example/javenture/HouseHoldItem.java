@@ -6,8 +6,10 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class HouseHoldItem implements Serializable {
     private String id;
@@ -128,6 +130,33 @@ public class HouseHoldItem implements Serializable {
 
     public void setTags(List<Tag> tags) {
         this.tags = tags;
+    }
+
+    /**
+     * Check if the item has a given tag
+     * @param tag tag to check
+     * @return true if the item has the tag, false otherwise
+     */
+    public boolean hasTag(Tag tag) {
+        Set<String> tagNames = new HashSet<>();
+        for (Tag t : tags) {
+            tagNames.add(t.getName());
+        }
+        return tagNames.contains(tag);
+    }
+
+    /**
+     * Assign a tag to the item
+     * @param tag tag to assign
+     */
+    public void addTag(Tag tag) {
+        if (tags == null) {
+            tags = new ArrayList<>();
+        }
+        if (hasTag(tag)) {
+            return;
+        }
+        tags.add(tag);
     }
 
     public String getId() {

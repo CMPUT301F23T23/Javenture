@@ -3,25 +3,31 @@ package com.example.javenture;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.javenture.databinding.FragmentHouseholdItemsBinding;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.TextInputEditText;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class HouseHoldItemsFragment extends Fragment {
 
@@ -108,6 +114,7 @@ public class HouseHoldItemsFragment extends Fragment {
                 binding.addFab.setVisibility(View.GONE);
                 binding.exitMultiSelectionFab.setVisibility(View.VISIBLE);
                 binding.deleteFab.setVisibility(View.VISIBLE);
+                binding.tagAssignFab.setVisibility(View.VISIBLE);
             }
 
             @Override
@@ -115,6 +122,7 @@ public class HouseHoldItemsFragment extends Fragment {
                 binding.addFab.setVisibility(View.VISIBLE);
                 binding.exitMultiSelectionFab.setVisibility(View.GONE);
                 binding.deleteFab.setVisibility(View.GONE);
+                binding.tagAssignFab.setVisibility(View.GONE);
             }
         });
 
@@ -155,6 +163,77 @@ public class HouseHoldItemsFragment extends Fragment {
                     .setNegativeButton("Cancel", null)  // Dismiss the dialog if "Cancel" is clicked
                     .show();
         });
+        binding.tagAssignFab.setOnClickListener(v -> {
+            List<HouseHoldItem> selectedItems = houseHoldItemsAdapter.getSelectedItems();
+            if (selectedItems.size() == 0) {
+                Snackbar.make(binding.getRoot(), "No items selected", Snackbar.LENGTH_LONG)
+                        .setAnchorView(binding.totalMonthlyChargeContainer)
+                        .setAction("Action", null).show();
+                return;
+            }
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+            LayoutInflater inflater = requireActivity().getLayoutInflater();
+            View dialogView = inflater.inflate(R.layout.dialog_tag_assign, null);
+            builder.setView(dialogView);
+            builder.setTitle("Assign Tags");
+
+            Set<String> tagNames = new HashSet<>();
+            TextInputEditText tagEditText = dialogView.findViewById(R.id.tag_edit_text);
+            ChipGroup tagChipGroup = dialogView.findViewById(R.id.tag_chip_group);
+
+            tagEditText.setOnEditorActionListener((view1, actionId, event) -> {
+                if (actionId == EditorInfo.IME_ACTION_DONE || (event.getAction() == KeyEvent.ACTION_DOWN && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
+                    String enteredText = tagEditText.getText().toString();
+
+                    if (!enteredText.isEmpty() && !tagNames.contains(enteredText)) {
+                        Chip chip = new Chip(getContext());
+                        chip.setText(enteredText);
+                        chip.setCloseIconVisible(true);
+                        chip.setOnCloseIconClickListener(v1 -> {
+                            tagChipGroup.removeView(chip);
+                            tagNames.remove(enteredText);
+                        });
+                        tagChipGroup.addView(chip);
+                        tagEditText.setText("");
+                        tagNames.add(enteredText);
+                    }
+                    return true;
+                }
+                return false;
+            });
+
+            builder.setPositiveButton("Add", (dialog, which) -> {
+                houseHoldItemsAdapter.exitMultiSelectionMode();
+                // get tags and add to list
+                int chipCount = tagChipGroup.getChildCount();
+                ArrayList<Tag> tags = new ArrayList<>();
+                for (int i = 0; i < chipCount; i++) {
+                    Chip chip = (Chip) tagChipGroup.getChildAt(i);
+                    tags.add(new Tag(chip.getText().toString()));
+                }
+                for (HouseHoldItem item : selectedItems) {
+                    for (Tag tag : tags) {
+                        item.addTag(tag);
+                    }
+                }
+                houseHoldItemRepository.updateItems(selectedItems, new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        Snackbar.make(binding.getRoot(), "Assigned " + chipCount + " tags to " + selectedItems.size() + " items", Snackbar.LENGTH_LONG)
+                                .setAnchorView(binding.totalMonthlyChargeContainer)
+                                .setAction("Action", null).show();
+                        for (HouseHoldItem item : selectedItems) {
+                            houseHoldItemViewModel.updateHouseHoldItem(item);
+                        }
+                    }
+                });
+            });
+            builder.setNegativeButton("Cancel", null);
+
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
+        });
 
     }
 
@@ -164,7 +243,7 @@ public class HouseHoldItemsFragment extends Fragment {
         binding = null;
     }
 
-    public void updateTotalEstimatedValue() {
+    private void updateTotalEstimatedValue() {
         binding.totalEstimatedValue.setText(String.format("%.2f", houseHoldItemViewModel.getTotalEstimatedValue()));
     }
 

@@ -17,10 +17,8 @@ import com.google.firebase.firestore.WriteBatch;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 public class HouseHoldItemRepository {
     private FirebaseFirestore db;
@@ -152,6 +150,31 @@ public class HouseHoldItemRepository {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.w("db", "Error deleting documents", e);
+                    }
+                });
+    }
+
+    public void updateItems(List<HouseHoldItem> items, OnSuccessListener<Void> onSuccessListener) {
+        if (user == null) {
+            return;
+        }
+        CollectionReference itemsRef = db.collection("users").document(user.getUid()).collection("items");
+        WriteBatch batch = db.batch();
+        for (HouseHoldItem item : items) {
+            batch.set(itemsRef.document(item.getId()), item.toMap(), SetOptions.merge());
+        }
+        batch.commit()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        Log.d("db", "Documents updated");
+                        onSuccessListener.onSuccess(null);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w("db", "Error updating documents", e);
                     }
                 });
     }
