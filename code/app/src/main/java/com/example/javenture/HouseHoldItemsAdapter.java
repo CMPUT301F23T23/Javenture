@@ -137,6 +137,16 @@ public class HouseHoldItemsAdapter extends RecyclerView.Adapter<HouseHoldItemsAd
                     return true;
                 }
             });
+
+            checkbox.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    int position = getAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION) {
+                        toggleSelection(position);
+                    }
+                }
+            });
         }
 
         @Override
