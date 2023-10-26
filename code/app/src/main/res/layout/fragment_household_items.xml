@@ -76,8 +76,23 @@
         android:contentDescription="Exit MultiSelection Mode"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/total_monthly_charge_container"
-        android:visibility="gone"
-        />
+        android:visibility="gone" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/tag_assign_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        app:backgroundTint="#03DAC5"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/exit_multi_selection_fab"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="@dimen/fab_margin"
+        android:layout_marginEnd="@dimen/fab_margin"
+        app:tint="@android:color/white"
+        android:contentDescription="Assign tags to items"
+        app:srcCompat="@drawable/baseline_playlist_add_24"
+        android:visibility="gone" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/delete_fab"
@@ -91,7 +106,7 @@
         app:tint="@android:color/white"
         android:contentDescription="Delete selected items"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/exit_multi_selection_fab"
+        app:layout_constraintBottom_toTopOf="@id/tag_assign_fab"
         android:visibility="gone"
         />
 

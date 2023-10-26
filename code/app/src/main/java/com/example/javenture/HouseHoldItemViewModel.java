@@ -48,6 +48,23 @@ public class HouseHoldItemViewModel extends ViewModel {
     }
 
     /**
+     * Edit an HouseHoldItem object at a given index
+     * @param item HouseHoldItem object with updated values
+     */
+    public void updateHouseHoldItem(HouseHoldItem item) {
+        ArrayList<HouseHoldItem> currentHouseHoldItems = houseHoldItems.getValue();
+        if (currentHouseHoldItems != null) {
+            for (int index = 0; index < currentHouseHoldItems.size(); index++) {
+                if (currentHouseHoldItems.get(index).getId().equals(item.getId())) {
+                    currentHouseHoldItems.set(index, item);
+                    houseHoldItems.postValue(currentHouseHoldItems);
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
      * Empty the list.
      */
     public void clear() {
