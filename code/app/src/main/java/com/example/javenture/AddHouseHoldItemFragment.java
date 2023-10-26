@@ -80,7 +80,7 @@ public class AddHouseHoldItemFragment extends Fragment {
             });
         });
 
-        binding.addButton.setOnClickListener(v -> {
+        binding.addFab.setOnClickListener(v -> {
             boolean isValid = true;
 
             String make = makeEditText.getText().toString();
