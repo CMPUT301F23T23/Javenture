@@ -94,4 +94,21 @@ public class HouseHoldItemRepository {
                     Log.w("db", "Error updating document", e);
                 });
     }
+
+    public void deleteItem(HouseHoldItem item) {
+        if (user == null) {
+            return;
+        }
+        DocumentReference docRef = db.collection("users").document(user.getUid()).collection("items").document(item.getId());
+        docRef.delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        Log.d("db", "Document deleted");
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.w("db", "Error deleting document", e);
+                });
+    }
 }
