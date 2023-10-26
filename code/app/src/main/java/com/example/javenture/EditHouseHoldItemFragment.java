@@ -82,6 +82,11 @@ public class EditHouseHoldItemFragment extends Fragment {
             });
         });
 
+        binding.deleteButton.setOnClickListener(v -> {
+            houseHoldItemRepository.deleteItem(selectedItem);
+            navController.navigate(R.id.confirm_action);
+        });
+
         binding.confirmButton.setOnClickListener(v -> {
             boolean isValid = true;
 
