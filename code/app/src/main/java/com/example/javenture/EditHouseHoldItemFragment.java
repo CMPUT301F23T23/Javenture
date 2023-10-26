@@ -10,9 +10,9 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.javenture.databinding.FragmentHouseholdItemDetailBinding;
+import com.example.javenture.databinding.FragmentAddHouseholdItemBinding;
+import com.example.javenture.databinding.FragmentEditHouseholdItemBinding;
 import com.google.android.material.datepicker.MaterialDatePicker;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.time.Instant;
@@ -21,9 +21,9 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
-public class HouseHoldItemDetailFragment extends Fragment {
+public class EditHouseHoldItemFragment extends Fragment {
 
-    private FragmentHouseholdItemDetailBinding binding;
+    private FragmentEditHouseholdItemBinding binding;
     private TextInputEditText makeEditText;
     private TextInputEditText modelEditText;
     private TextInputEditText serialNumberEditText;
@@ -33,8 +33,7 @@ public class HouseHoldItemDetailFragment extends Fragment {
 
     private HouseHoldItemRepository houseHoldItemRepository;
     private AuthenticationService authService;
-
-
+    private HouseHoldItem selectedItem;
 
     @Override
     public View onCreateView(
@@ -42,7 +41,7 @@ public class HouseHoldItemDetailFragment extends Fragment {
             Bundle savedInstanceState
     ) {
 
-        binding = FragmentHouseholdItemDetailBinding.inflate(inflater, container, false);
+        binding = FragmentEditHouseholdItemBinding.inflate(inflater, container, false);
         makeEditText = binding.makeEditText;
         modelEditText = binding.modelEditText;
         serialNumberEditText = binding.serialNumberEditText;
@@ -54,18 +53,15 @@ public class HouseHoldItemDetailFragment extends Fragment {
         houseHoldItemRepository = new HouseHoldItemRepository(authService.getCurrentUser());
 
         return binding.getRoot();
-
     }
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        HouseHoldItem selectedItem = HouseHoldItemDetailFragmentArgs.fromBundle(getArguments()).getItem();
-        int selectedItemIndex = HouseHoldItemDetailFragmentArgs.fromBundle(getArguments()).getSelectedItemIndex();
-
+        NavController navController = NavHostFragment.findNavController(EditHouseHoldItemFragment.this);
+        EditHouseHoldItemFragmentArgs args = EditHouseHoldItemFragmentArgs.fromBundle(getArguments());
+        selectedItem = args.getItem();
         updateUI(selectedItem);
-
-        NavController navController = NavHostFragment.findNavController(HouseHoldItemDetailFragment.this);
 
         // build material date picker
         dateEditText.setOnClickListener(v -> {
@@ -86,7 +82,7 @@ public class HouseHoldItemDetailFragment extends Fragment {
             });
         });
 
-        binding.addButton.setOnClickListener(v -> {
+        binding.confirmButton.setOnClickListener(v -> {
             boolean isValid = true;
 
             String make = makeEditText.getText().toString();
@@ -133,14 +129,19 @@ public class HouseHoldItemDetailFragment extends Fragment {
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.ENGLISH);
 
-            HouseHoldItem houseHoldItem = new HouseHoldItem(description, make, LocalDate.parse(date, formatter), Double.parseDouble(value), serialNumber, "", model, null, null);
-            houseHoldItemRepository.addItem(houseHoldItem);
+            HouseHoldItem houseHoldItem = new HouseHoldItem(selectedItem.getId(), description, make, LocalDate.parse(date, formatter), Double.parseDouble(value), serialNumber, "", model, null, null);
+            houseHoldItemRepository.editItem(houseHoldItem);
 
             navController.navigate(R.id.confirm_action);
         });
 
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
     /**
      * Update the UI based on the selected item
      * @param item
@@ -162,11 +163,4 @@ public class HouseHoldItemDetailFragment extends Fragment {
         valueEditText.setText(String.format("%.2f", item.getPrice()));
         dateEditText.setText(item.getFormattedDatePurchased());
     }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
-    }
-
 }

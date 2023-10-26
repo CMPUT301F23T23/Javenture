@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:layout_margin="16dp"
-    tools:context=".HouseHoldItemDetailFragment">
+    tools:context=".AddHouseHoldItemFragment">
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/make_text_input_layout"
