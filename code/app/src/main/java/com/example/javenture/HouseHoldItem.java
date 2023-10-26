@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 public class HouseHoldItem implements Serializable {
+    private String id;
     private String description;
     private String make;
     private LocalDate datePurchased;
@@ -20,7 +21,8 @@ public class HouseHoldItem implements Serializable {
     private List<Tag> tags;
 
     public HouseHoldItem() { }
-    public HouseHoldItem(String description, String make, LocalDate datePurchased, double price, String serialNumber, String comment, String model, List<URI> photoURIs, List<Tag> tags) {
+    public HouseHoldItem(String id, String description, String make, LocalDate datePurchased, double price, String serialNumber, String comment, String model, List<URI> photoURIs, List<Tag> tags) {
+        this.id = id;
         this.description = description;
         this.make = make;
         this.datePurchased = datePurchased;
@@ -120,5 +122,13 @@ public class HouseHoldItem implements Serializable {
 
     public void setTags(List<Tag> tags) {
         this.tags = tags;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

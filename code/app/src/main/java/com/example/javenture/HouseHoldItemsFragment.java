@@ -81,11 +81,6 @@ public class HouseHoldItemsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-//        MainActivity mainActivity = (MainActivity) getActivity();
-//        if (mainActivity != null) {
-//            mainActivity.getToolbar().setTitle("HouseHold Items");
-//        }
-
         NavController navController = NavHostFragment.findNavController(HouseHoldItemsFragment.this);
 
         binding.addButton.setOnClickListener(v -> {
@@ -97,7 +92,6 @@ public class HouseHoldItemsFragment extends Fragment {
             public void onItemClick(int position) {
                 HouseHoldItemsFragmentDirections.EditItemAction action = HouseHoldItemsFragmentDirections.editItemAction();
                 action.setItem(houseHoldItemViewModel.getHouseHoldItem(position));
-                action.setSelectedItemIndex(position);
                 navController.navigate(action);
             }
         });

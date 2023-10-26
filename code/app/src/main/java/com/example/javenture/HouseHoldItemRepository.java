@@ -8,6 +8,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.SetOptions;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -36,6 +37,7 @@ public class HouseHoldItemRepository {
                 for (QueryDocumentSnapshot document : task.getResult()) {
                     HouseHoldItem item = new HouseHoldItem();
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.ENGLISH);
+                    item.setId(document.getId());
                     item.setDescription(document.getString("description"));
                     item.setMake(document.getString("make"));
                     item.setDatePurchased(LocalDate.parse(document.getString("datePurchased"), formatter));
@@ -69,6 +71,27 @@ public class HouseHoldItemRepository {
                 })
                 .addOnFailureListener(e -> {
                     Log.w("db", "Error adding document", e);
+                });
+    }
+
+    /**
+     * Edit an item in the db
+     * @param item target item with updated values
+     */
+    public void editItem(HouseHoldItem item) {
+        if (user == null) {
+            return;
+        }
+        DocumentReference docRef = db.collection("users").document(user.getUid()).collection("items").document(item.getId());
+        docRef.set(item.toMap(), SetOptions.merge())
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        Log.d("db", "Document updated");
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.w("db", "Error updating document", e);
                 });
     }
 }
