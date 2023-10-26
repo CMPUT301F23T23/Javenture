@@ -1,11 +1,14 @@
 package com.example.javenture;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
@@ -15,7 +18,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.javenture.databinding.FragmentHouseholdItemsBinding;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
+
+import java.util.List;
 
 public class HouseHoldItemsFragment extends Fragment {
 
@@ -83,7 +89,7 @@ public class HouseHoldItemsFragment extends Fragment {
 
         NavController navController = NavHostFragment.findNavController(HouseHoldItemsFragment.this);
 
-        binding.addButton.setOnClickListener(v -> {
+        binding.addFab.setOnClickListener(v -> {
             navController.navigate(R.id.add_item_action);
         });
 
@@ -94,6 +100,60 @@ public class HouseHoldItemsFragment extends Fragment {
                 action.setItem(houseHoldItemViewModel.getHouseHoldItem(position));
                 navController.navigate(action);
             }
+        });
+
+        houseHoldItemsAdapter.setMultiSelectionModeListener(new HouseHoldItemsAdapter.MultiSelectionModeListener() {
+            @Override
+            public void onMultiSelectionModeEnter() {
+                binding.addFab.setVisibility(View.GONE);
+                binding.exitMultiSelectionFab.setVisibility(View.VISIBLE);
+                binding.deleteFab.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onMultiSelectionModeExit() {
+                binding.addFab.setVisibility(View.VISIBLE);
+                binding.exitMultiSelectionFab.setVisibility(View.GONE);
+                binding.deleteFab.setVisibility(View.GONE);
+            }
+        });
+
+        binding.exitMultiSelectionFab.setOnClickListener(v -> {
+            houseHoldItemsAdapter.exitMultiSelectionMode();
+        });
+
+        binding.deleteFab.setOnClickListener(v -> {
+            List<HouseHoldItem> selectedItems = houseHoldItemsAdapter.getSelectedItems();
+            if (selectedItems.size() == 0) {
+                Snackbar.make(binding.getRoot(), "No items selected", Snackbar.LENGTH_LONG)
+                        .setAnchorView(binding.totalMonthlyChargeContainer)
+                        .setAction("Action", null).show();
+                return;
+            }
+            // Create confirmation dialog
+            new AlertDialog.Builder(getContext())
+                    .setTitle("Delete Items")
+                    .setMessage("Are you sure you want to delete " + selectedItems.size() + " items?")
+                    .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // Proceed with the deletion
+                            houseHoldItemRepository.deleteItems(selectedItems, new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void unused) {
+                                    houseHoldItemsAdapter.exitMultiSelectionMode();
+                                    Snackbar.make(binding.getRoot(), "Deleted " + selectedItems.size() + " items", Snackbar.LENGTH_LONG)
+                                            .setAnchorView(binding.totalMonthlyChargeContainer)
+                                            .setAction("Action", null).show();
+                                    for (HouseHoldItem item : selectedItems) {
+                                        houseHoldItemViewModel.removeHouseHoldItem(item);
+                                    }
+                                }
+                            });
+                        }
+                    })
+                    .setNegativeButton("Cancel", null)  // Dismiss the dialog if "Cancel" is clicked
+                    .show();
         });
 
     }

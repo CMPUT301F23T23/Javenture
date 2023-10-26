@@ -1,5 +1,6 @@
 package com.example.javenture;
 
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
@@ -9,7 +10,7 @@ import java.util.Objects;
 public class HouseHoldItemViewModel extends ViewModel {
     private final MutableLiveData<ArrayList<HouseHoldItem>> houseHoldItems = new MutableLiveData<>(new ArrayList<>());
 
-    public MutableLiveData<ArrayList<HouseHoldItem>> getHouseHoldItems() {
+    public LiveData<ArrayList<HouseHoldItem>> getHouseHoldItems() {
         return houseHoldItems;
     }
 
@@ -35,13 +36,13 @@ public class HouseHoldItemViewModel extends ViewModel {
     }
 
     /**
-     * Remove an HouseHoldItem object at a given index
-     * @param index index of the HouseHoldItem object
+     * Remove an HouseHoldItem object from the list of houseHoldItems
+     * @param item HouseHoldItem object to be removed
      */
-    public void removeHouseHoldItem(int index) {
+    public void removeHouseHoldItem(HouseHoldItem item) {
         ArrayList<HouseHoldItem> currentHouseHoldItems = houseHoldItems.getValue();
         if (currentHouseHoldItems != null) {
-            currentHouseHoldItems.remove(index);
+            currentHouseHoldItems.remove(item);
             houseHoldItems.postValue(currentHouseHoldItems);
         }
     }
@@ -50,7 +51,11 @@ public class HouseHoldItemViewModel extends ViewModel {
      * Empty the list.
      */
     public void clear() {
-        Objects.requireNonNull(houseHoldItems.getValue()).clear();
+        ArrayList<HouseHoldItem> currentHouseHoldItems = houseHoldItems.getValue();
+        if (currentHouseHoldItems != null) {
+            currentHouseHoldItems.clear();
+            houseHoldItems.postValue(currentHouseHoldItems);
+        }
     }
 
     /**

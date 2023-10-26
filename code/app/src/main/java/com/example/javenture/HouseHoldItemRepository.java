@@ -2,6 +2,9 @@ package com.example.javenture;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -9,11 +12,15 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class HouseHoldItemRepository {
     private FirebaseFirestore db;
@@ -109,6 +116,35 @@ public class HouseHoldItemRepository {
                 })
                 .addOnFailureListener(e -> {
                     Log.w("db", "Error deleting document", e);
+                });
+    }
+
+    /**
+     * Delete multiple items from the db
+     * @param items list of items to delete
+     */
+    public void deleteItems(List<HouseHoldItem> items, OnSuccessListener<Void> onSuccessListener) {
+        if (user == null) {
+            return;
+        }
+        CollectionReference itemsRef = db.collection("users").document(user.getUid()).collection("items");
+        WriteBatch batch = db.batch();
+        for (HouseHoldItem item : items) {
+            batch.delete(itemsRef.document(item.getId()));
+        }
+        batch.commit()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        Log.d("db", "Documents deleted");
+                        onSuccessListener.onSuccess(null);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w("db", "Error deleting documents", e);
+                    }
                 });
     }
 }
