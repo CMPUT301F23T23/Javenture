@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +44,12 @@ public class HouseHoldItem implements Serializable {
         map.put("serialNumber", serialNumber);
         map.put("comment", comment);
         map.put("model", model);
-        // TODO photos and tags
+        ArrayList<String> tagNames = new ArrayList<>();
+        for (Tag tag : tags) {
+            tagNames.add(tag.getName());
+        }
+        map.put("tags", tagNames);
+        // TODO photos
         return map;
     }
 
