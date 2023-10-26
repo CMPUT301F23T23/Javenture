@@ -1,9 +1,11 @@
 package com.example.javenture;
 
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -11,6 +13,8 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.javenture.databinding.FragmentAddHouseholdItemBinding;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -18,7 +22,10 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 
 public class AddHouseHoldItemFragment extends Fragment {
 
@@ -29,6 +36,9 @@ public class AddHouseHoldItemFragment extends Fragment {
     private TextInputEditText descriptionEditText;
     private TextInputEditText valueEditText;
     private TextInputEditText dateEditText;
+    private TextInputEditText tagEditText;
+    private ChipGroup tagChipGroup;
+    private Set<String> tagNames;
 
     private HouseHoldItemRepository houseHoldItemRepository;
     private AuthenticationService authService;
@@ -48,6 +58,9 @@ public class AddHouseHoldItemFragment extends Fragment {
         descriptionEditText = binding.descriptionEditText;
         valueEditText = binding.valueEditText;
         dateEditText = binding.datePurchasedEditText;
+        tagEditText = binding.tagEditText;
+        tagChipGroup = binding.tagChipGroup;
+        tagNames = new HashSet<>();
 
         authService = new AuthenticationService();
         houseHoldItemRepository = new HouseHoldItemRepository(authService.getCurrentUser());
@@ -78,6 +91,27 @@ public class AddHouseHoldItemFragment extends Fragment {
 
                 dateEditText.setText(formattedDate);
             });
+        });
+
+        tagEditText.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE || (event.getAction() == KeyEvent.ACTION_DOWN && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
+                String enteredText = tagEditText.getText().toString();
+
+                if (!enteredText.isEmpty() && !tagNames.contains(enteredText)) {
+                    Chip chip = new Chip(getContext());
+                    chip.setText(enteredText);
+                    chip.setCloseIconVisible(true);
+                    chip.setOnCloseIconClickListener(v1 -> {
+                        tagChipGroup.removeView(chip);
+                        tagNames.remove(enteredText);
+                    });
+                    tagChipGroup.addView(chip);
+                    tagEditText.setText("");
+                    tagNames.add(enteredText);
+                }
+                return true;
+            }
+            return false;
         });
 
         binding.addFab.setOnClickListener(v -> {
@@ -121,13 +155,21 @@ public class AddHouseHoldItemFragment extends Fragment {
                 binding.datePurchasedTextInputLayout.setError(null);
             }
 
+            // get tags and add to list
+            int chipCount = tagChipGroup.getChildCount();
+            ArrayList<Tag> tags = new ArrayList<>();
+            for (int i = 0; i < chipCount; i++) {
+                Chip chip = (Chip) tagChipGroup.getChildAt(i);
+                tags.add(new Tag(chip.getText().toString()));
+            }
+
             if (!isValid) {
                 return;
             }
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.ENGLISH);
 
-            HouseHoldItem houseHoldItem = new HouseHoldItem(null, description, make, LocalDate.parse(date, formatter), Double.parseDouble(value), serialNumber, "", model, null, null);
+            HouseHoldItem houseHoldItem = new HouseHoldItem(null, description, make, LocalDate.parse(date, formatter), Double.parseDouble(value), serialNumber, "", model, null, tags);
             houseHoldItemRepository.addItem(houseHoldItem);
 
             navController.navigate(R.id.confirm_action);
