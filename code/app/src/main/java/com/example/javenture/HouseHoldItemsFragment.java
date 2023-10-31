@@ -5,15 +5,23 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -45,6 +53,7 @@ public class HouseHoldItemsFragment extends Fragment {
     ) {
 
         binding = FragmentHouseholdItemsBinding.inflate(inflater, container, false);
+
         authService = new AuthenticationService();
         // TODO check if sign in works
         if (authService.getCurrentUser() == null) {
@@ -92,6 +101,37 @@ public class HouseHoldItemsFragment extends Fragment {
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        ((AppCompatActivity) requireActivity()).setSupportActionBar(binding.toolbar);
+
+        if (getArguments() == null || !getArguments().getBoolean("menu_added", false)) {
+            ((AppCompatActivity) requireActivity()).addMenuProvider(new MenuProvider() {
+                @Override
+                public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
+                    menuInflater.inflate(R.menu.menu_main, menu);
+                }
+
+                @Override
+                public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
+                    int id = menuItem.getItemId();
+                    if (id == R.id.action_sort) {
+                        SortAndFilterBottomSheet sortAndFilterBottomSheet = new SortAndFilterBottomSheet();
+                        sortAndFilterBottomSheet.show(getParentFragmentManager(), "sort_and_filter_bottom_sheet");
+                    }
+                    return false;
+                }
+            });
+
+            if (getArguments() == null) {
+                setArguments(new Bundle());
+            }
+            getArguments().putBoolean("menu_added", true);
+        }
+
+        // TODO remove?
+//        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+//        appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
+//        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 
         NavController navController = NavHostFragment.findNavController(HouseHoldItemsFragment.this);
 
@@ -242,6 +282,14 @@ public class HouseHoldItemsFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
+
+    // TODO remove?
+//    @Override
+//    public boolean onSupportNavigateUp() {
+//        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+//        return NavigationUI.navigateUp(navController, appBarConfiguration)
+//                || super.onSupportNavigateUp();
+//    }
 
     private void updateTotalEstimatedValue() {
         binding.totalEstimatedValue.setText(String.format("%.2f", houseHoldItemViewModel.getTotalEstimatedValue()));

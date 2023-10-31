@@ -193,14 +193,6 @@ public class EditHouseHoldItemFragment extends Fragment {
      * @param item
      */
     private void updateUI(HouseHoldItem item) {
-        MainActivity mainActivity = (MainActivity) getActivity();
-        if (mainActivity != null) {
-            if (item == null) {
-                mainActivity.getToolbar().setTitle("Add Item");
-                return;
-            }
-            mainActivity.getToolbar().setTitle("Edit Item");
-        }
 
         makeEditText.setText(item.getMake());
         modelEditText.setText(item.getModel());
