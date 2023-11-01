@@ -102,37 +102,6 @@ public class HouseHoldItemsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        ((AppCompatActivity) requireActivity()).setSupportActionBar(binding.toolbar);
-
-        if (getArguments() == null || !getArguments().getBoolean("menu_added", false)) {
-            ((AppCompatActivity) requireActivity()).addMenuProvider(new MenuProvider() {
-                @Override
-                public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
-                    menuInflater.inflate(R.menu.menu_main, menu);
-                }
-
-                @Override
-                public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
-                    int id = menuItem.getItemId();
-                    if (id == R.id.action_sort) {
-                        SortAndFilterBottomSheet sortAndFilterBottomSheet = new SortAndFilterBottomSheet();
-                        sortAndFilterBottomSheet.show(getParentFragmentManager(), "sort_and_filter_bottom_sheet");
-                    }
-                    return false;
-                }
-            });
-
-            if (getArguments() == null) {
-                setArguments(new Bundle());
-            }
-            getArguments().putBoolean("menu_added", true);
-        }
-
-        // TODO remove?
-//        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-//        appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
-//        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-
         NavController navController = NavHostFragment.findNavController(HouseHoldItemsFragment.this);
 
         binding.addFab.setOnClickListener(v -> {
@@ -282,14 +251,6 @@ public class HouseHoldItemsFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
-
-    // TODO remove?
-//    @Override
-//    public boolean onSupportNavigateUp() {
-//        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-//        return NavigationUI.navigateUp(navController, appBarConfiguration)
-//                || super.onSupportNavigateUp();
-//    }
 
     private void updateTotalEstimatedValue() {
         binding.totalEstimatedValue.setText(String.format("%.2f", houseHoldItemViewModel.getTotalEstimatedValue()));

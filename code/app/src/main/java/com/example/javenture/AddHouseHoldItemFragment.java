@@ -65,6 +65,11 @@ public class AddHouseHoldItemFragment extends Fragment {
         authService = new AuthenticationService();
         houseHoldItemRepository = new HouseHoldItemRepository(authService.getCurrentUser());
 
+        MainActivity mainActivity = (MainActivity) getActivity();
+        if (mainActivity != null) {
+            mainActivity.setMenuItemVisibility(R.id.action_sort_and_filter, false);
+        }
+
         return binding.getRoot();
 
     }
@@ -180,6 +185,10 @@ public class AddHouseHoldItemFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        MainActivity mainActivity = (MainActivity) getActivity();
+        if (mainActivity != null) {
+            mainActivity.setMenuItemVisibility(R.id.action_sort_and_filter, true);
+        }
         binding = null;
     }
 
