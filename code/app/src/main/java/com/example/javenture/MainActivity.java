@@ -2,8 +2,10 @@ package com.example.javenture;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import androidx.core.view.MenuProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -13,6 +15,7 @@ import com.example.javenture.databinding.ActivityMainBinding;
 import com.google.android.material.appbar.MaterialToolbar;
 
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toolbar;
 
@@ -51,7 +54,9 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_sort_and_filter) {
+            SortAndFilterBottomSheet sortAndFilterBottomSheet = new SortAndFilterBottomSheet();
+            sortAndFilterBottomSheet.show(getSupportFragmentManager(), "sort_and_filter_bottom_sheet");
             return true;
         }
 
@@ -67,5 +72,18 @@ public class MainActivity extends AppCompatActivity {
 
     public MaterialToolbar getToolbar() {
         return binding.toolbar;
+    }
+
+    /**
+     * Set the visibility of a menu item
+     * @param itemId id of the menu item
+     * @param visible true if the item should be visible, false otherwise
+     */
+    public void setMenuItemVisibility(int itemId, boolean visible) {
+        Menu menu = binding.toolbar.getMenu();
+        MenuItem item = menu.findItem(itemId);
+        if (item != null) {
+            item.setVisible(visible);
+        }
     }
 }
