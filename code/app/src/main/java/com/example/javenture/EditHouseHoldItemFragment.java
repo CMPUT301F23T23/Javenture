@@ -36,9 +36,8 @@ public class EditHouseHoldItemFragment extends Fragment {
     private TextInputEditText descriptionEditText;
     private TextInputEditText valueEditText;
     private TextInputEditText dateEditText;
-    private TextInputEditText tagEditText;
-    private ChipGroup tagChipGroup;
-    private Set<String> tagNames;
+    private TagInputView tagInputView;
+    private TextInputEditText commentEditText;
 
     private HouseHoldItemRepository houseHoldItemRepository;
     private AuthenticationService authService;
@@ -57,10 +56,9 @@ public class EditHouseHoldItemFragment extends Fragment {
         descriptionEditText = binding.descriptionEditText;
         valueEditText = binding.valueEditText;
         dateEditText = binding.datePurchasedEditText;
-        tagChipGroup = binding.tagChipGroup;
-        tagEditText = binding.tagEditText;
+        tagInputView = binding.tagInputView;
+        commentEditText = binding.commentEditText;
 
-        tagNames = new HashSet<>();
         authService = new AuthenticationService();
         houseHoldItemRepository = new HouseHoldItemRepository(authService.getCurrentUser());
 
@@ -99,27 +97,6 @@ public class EditHouseHoldItemFragment extends Fragment {
             });
         });
 
-        tagEditText.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_DONE || (event.getAction() == KeyEvent.ACTION_DOWN && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
-                String enteredText = tagEditText.getText().toString();
-
-                if (!enteredText.isEmpty() && !tagNames.contains(enteredText)) {
-                    Chip chip = new Chip(getContext());
-                    chip.setText(enteredText);
-                    chip.setCloseIconVisible(true);
-                    chip.setOnCloseIconClickListener(v1 -> {
-                        tagChipGroup.removeView(chip);
-                        tagNames.remove(enteredText);
-                    });
-                    tagChipGroup.addView(chip);
-                    tagEditText.setText("");
-                    tagNames.add(enteredText);
-                }
-                return true;
-            }
-            return false;
-        });
-
         binding.deleteButton.setOnClickListener(v -> {
             houseHoldItemRepository.deleteItem(selectedItem);
             navController.navigate(R.id.confirm_action);
@@ -134,6 +111,8 @@ public class EditHouseHoldItemFragment extends Fragment {
             String description = descriptionEditText.getText().toString();
             String value = valueEditText.getText().toString();
             String date = dateEditText.getText().toString();
+            ArrayList<Tag> tags = tagInputView.getTags();
+            String comment = commentEditText.getText().toString();
 
             if (make.isEmpty()) {
                 binding.makeTextInputLayout.setError("Make is required");
@@ -166,21 +145,13 @@ public class EditHouseHoldItemFragment extends Fragment {
                 binding.datePurchasedTextInputLayout.setError(null);
             }
 
-            // get tags and add to list
-            int chipCount = tagChipGroup.getChildCount();
-            ArrayList<Tag> tags = new ArrayList<>();
-            for (int i = 0; i < chipCount; i++) {
-                Chip chip = (Chip) tagChipGroup.getChildAt(i);
-                tags.add(new Tag(chip.getText().toString()));
-            }
-
             if (!isValid) {
                 return;
             }
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.ENGLISH);
 
-            HouseHoldItem houseHoldItem = new HouseHoldItem(selectedItem.getId(), description, make, LocalDate.parse(date, formatter), Double.parseDouble(value), serialNumber, "", model, null, tags);
+            HouseHoldItem houseHoldItem = new HouseHoldItem(selectedItem.getId(), description, make, LocalDate.parse(date, formatter), Double.parseDouble(value), serialNumber, comment, model, null, tags);
             houseHoldItemRepository.editItem(houseHoldItem);
 
             navController.navigate(R.id.confirm_action);
@@ -210,18 +181,6 @@ public class EditHouseHoldItemFragment extends Fragment {
         descriptionEditText.setText(item.getDescription());
         valueEditText.setText(String.format("%.2f", item.getPrice()));
         dateEditText.setText(item.getFormattedDatePurchased());
-
-        // add tags to chip group
-        for (Tag tag : item.getTags()) {
-            Chip chip = new Chip(getContext());
-            chip.setText(tag.getName());
-            chip.setCloseIconVisible(true);
-            chip.setOnCloseIconClickListener(v1 -> {
-                tagChipGroup.removeView(chip);
-                tagNames.remove(tag.getName());
-            });
-            tagChipGroup.addView(chip);
-            tagNames.add(tag.getName());
-        }
+        tagInputView.addTagsToChipGroup(item.getTags());
     }
 }

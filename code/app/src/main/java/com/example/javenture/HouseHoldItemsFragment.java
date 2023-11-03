@@ -184,43 +184,17 @@ public class HouseHoldItemsFragment extends Fragment {
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
             LayoutInflater inflater = requireActivity().getLayoutInflater();
             View dialogView = inflater.inflate(R.layout.dialog_tag_assign, null);
+            TagInputView tagInputView = dialogView.findViewById(R.id.tag_input_view);
             builder.setView(dialogView);
             builder.setTitle("Assign Tags");
 
-            Set<String> tagNames = new HashSet<>();
-            TextInputEditText tagEditText = dialogView.findViewById(R.id.tag_edit_text);
-            ChipGroup tagChipGroup = dialogView.findViewById(R.id.tag_chip_group);
-
-            tagEditText.setOnEditorActionListener((view1, actionId, event) -> {
-                if (actionId == EditorInfo.IME_ACTION_DONE || (event.getAction() == KeyEvent.ACTION_DOWN && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
-                    String enteredText = tagEditText.getText().toString();
-
-                    if (!enteredText.isEmpty() && !tagNames.contains(enteredText)) {
-                        Chip chip = new Chip(getContext());
-                        chip.setText(enteredText);
-                        chip.setCloseIconVisible(true);
-                        chip.setOnCloseIconClickListener(v1 -> {
-                            tagChipGroup.removeView(chip);
-                            tagNames.remove(enteredText);
-                        });
-                        tagChipGroup.addView(chip);
-                        tagEditText.setText("");
-                        tagNames.add(enteredText);
-                    }
-                    return true;
-                }
-                return false;
-            });
-
             builder.setPositiveButton("Add", (dialog, which) -> {
                 houseHoldItemsAdapter.exitMultiSelectionMode();
-                // get tags and add to list
-                int chipCount = tagChipGroup.getChildCount();
-                ArrayList<Tag> tags = new ArrayList<>();
-                for (int i = 0; i < chipCount; i++) {
-                    Chip chip = (Chip) tagChipGroup.getChildAt(i);
-                    tags.add(new Tag(chip.getText().toString()));
-                }
+
+                List<Tag> tags = tagInputView.getTags();
+                int tagCount = tagInputView.getTagCount();
+
+                // assign unique tags to items
                 for (HouseHoldItem item : selectedItems) {
                     for (Tag tag : tags) {
                         item.addTag(tag);
@@ -229,7 +203,7 @@ public class HouseHoldItemsFragment extends Fragment {
                 houseHoldItemRepository.updateItems(selectedItems, new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {
-                        Snackbar.make(binding.getRoot(), "Assigned " + chipCount + " tags to " + selectedItems.size() + " items", Snackbar.LENGTH_LONG)
+                        Snackbar.make(binding.getRoot(), "Assigned " + tagCount + " tags to " + selectedItems.size() + " items", Snackbar.LENGTH_LONG)
                                 .setAnchorView(binding.totalMonthlyChargeContainer)
                                 .setAction("Action", null).show();
                         for (HouseHoldItem item : selectedItems) {

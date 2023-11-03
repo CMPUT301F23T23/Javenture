@@ -138,11 +138,15 @@ public class HouseHoldItem implements Serializable {
      * @return true if the item has the tag, false otherwise
      */
     public boolean hasTag(Tag tag) {
-        Set<String> tagNames = new HashSet<>();
-        for (Tag t : tags) {
-            tagNames.add(t.getName());
+        if (tags == null) {
+            return false;
         }
-        return tagNames.contains(tag);
+        for (Tag t : tags) {
+            if (t.getName().equals(tag.getName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

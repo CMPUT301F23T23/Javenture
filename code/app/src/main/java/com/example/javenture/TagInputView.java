@@ -17,6 +17,7 @@ import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class TagInputView extends ConstraintLayout {
 
@@ -151,6 +152,25 @@ public class TagInputView extends ConstraintLayout {
             }
         }
         return false;
+    }
+
+    /**
+     * Given a list of tags, add them to the TagInputView
+     * @param tags list of tags
+     */
+    public void addTagsToChipGroup(List<Tag> tags) {
+        for (Tag tag : tags) {
+            Chip chip = (Chip) LayoutInflater.from(getContext()).inflate(R.layout.tag_chip, chipGroup, false);
+            chip.setId(ViewCompat.generateViewId());
+            chip.setText(tag.getName());
+            chip.setOnCloseIconClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    chipGroup.removeView(chip);
+                }
+            });
+            chipGroup.addView(chip);
+        }
     }
 }
 
