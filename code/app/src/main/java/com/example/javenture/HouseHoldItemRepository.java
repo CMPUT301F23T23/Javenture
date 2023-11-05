@@ -120,8 +120,8 @@ public class HouseHoldItemRepository {
                 sortedItemDocs = sortByDescription(itemDocs, sortAndFilterOption.getSortOption());
                 break;
             case "make":
-//                sortedItemDocs = sortByMake(itemDocs, sortOption);
-//                break;
+                sortedItemDocs = sortByMake(itemDocs, sortAndFilterOption.getSortOption());
+                break;
             case "value":
 //                sortedItemDocs = sortByValue(itemDocs, sortOption);
 //                break;
@@ -148,6 +148,35 @@ public class HouseHoldItemRepository {
             if (description2 == null) return 1;
 
             return description1.compareToIgnoreCase(description2); // Ascending
+        };
+
+        // Sort ascending or descending based on the sortOption
+        if ("ascending".equalsIgnoreCase(sortOption)) {
+            Collections.sort(itemDocs, comparator);
+        } else if ("descending".equalsIgnoreCase(sortOption)) {
+            Collections.sort(itemDocs, Collections.reverseOrder(comparator));
+        } else {
+            throw new IllegalArgumentException("Invalid sort option");
+        }
+        return itemDocs;
+    }
+
+    /**
+     * Sort documents by make
+     * @param itemDocs List of documents to be sorted
+     * @param sortOption "ascending" or "descending"
+     * @return List of sorted documents
+     */
+    private List<DocumentSnapshot> sortByMake(List<DocumentSnapshot> itemDocs, String sortOption) {
+        Comparator<DocumentSnapshot> comparator = (doc1, doc2) -> {
+            String make1 = doc1.getString("make");
+            String make2 = doc2.getString("make");
+
+            // null checks if necessary
+            if (make1 == null) return (make2 == null) ? 0 : -1;
+            if (make2 == null) return 1;
+
+            return make1.compareToIgnoreCase(make2); // Ascending
         };
 
         // Sort ascending or descending based on the sortOption
