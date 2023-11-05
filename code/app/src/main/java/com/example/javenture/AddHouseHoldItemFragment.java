@@ -1,5 +1,6 @@
 package com.example.javenture;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -8,16 +9,21 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.javenture.databinding.FragmentAddHouseholdItemBinding;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipDrawable;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.firestore.DocumentReference;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -40,9 +46,7 @@ public class AddHouseHoldItemFragment extends Fragment {
     private TagInputView tagInputView;
     private TextInputEditText commentEditText;
 
-    private HouseHoldItemRepository houseHoldItemRepository;
-    private AuthenticationService authService;
-
+    private HouseHoldItemViewModel houseHoldItemViewModel;
 
 
     @Override
@@ -61,13 +65,12 @@ public class AddHouseHoldItemFragment extends Fragment {
         tagInputView = binding.tagInputView;
         commentEditText = binding.commentEditText;
 
-        authService = new AuthenticationService();
-        houseHoldItemRepository = new HouseHoldItemRepository(authService.getCurrentUser());
-
         MainActivity mainActivity = (MainActivity) getActivity();
         if (mainActivity != null) {
             mainActivity.setMenuItemVisibility(R.id.action_sort_and_filter, false);
         }
+
+        houseHoldItemViewModel = new ViewModelProvider(requireActivity()).get(HouseHoldItemViewModel.class);
 
         return binding.getRoot();
 
@@ -148,11 +151,11 @@ public class AddHouseHoldItemFragment extends Fragment {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.ENGLISH);
 
             HouseHoldItem houseHoldItem = new HouseHoldItem(null, description, make, LocalDate.parse(date, formatter), Double.parseDouble(value), serialNumber, comment, model, null, tags);
-            houseHoldItemRepository.addItem(houseHoldItem);
+
+            houseHoldItemViewModel.addItem(houseHoldItem);
 
             navController.navigate(R.id.confirm_action);
         });
-
     }
 
     @Override

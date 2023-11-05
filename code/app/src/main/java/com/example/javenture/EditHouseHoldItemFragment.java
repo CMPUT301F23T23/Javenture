@@ -1,20 +1,17 @@
 package com.example.javenture;
 
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.javenture.databinding.FragmentEditHouseholdItemBinding;
-import com.google.android.material.chip.Chip;
-import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -23,9 +20,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Locale;
-import java.util.Set;
 
 public class EditHouseHoldItemFragment extends Fragment {
 
@@ -39,8 +34,7 @@ public class EditHouseHoldItemFragment extends Fragment {
     private TagInputView tagInputView;
     private TextInputEditText commentEditText;
 
-    private HouseHoldItemRepository houseHoldItemRepository;
-    private AuthenticationService authService;
+    private HouseHoldItemViewModel houseHoldItemViewModel;
     private HouseHoldItem selectedItem;
 
     @Override
@@ -59,8 +53,7 @@ public class EditHouseHoldItemFragment extends Fragment {
         tagInputView = binding.tagInputView;
         commentEditText = binding.commentEditText;
 
-        authService = new AuthenticationService();
-        houseHoldItemRepository = new HouseHoldItemRepository(authService.getCurrentUser());
+        houseHoldItemViewModel = new ViewModelProvider(requireActivity()).get(HouseHoldItemViewModel.class);
 
         MainActivity mainActivity = (MainActivity) getActivity();
         if (mainActivity != null) {
@@ -98,7 +91,7 @@ public class EditHouseHoldItemFragment extends Fragment {
         });
 
         binding.deleteButton.setOnClickListener(v -> {
-            houseHoldItemRepository.deleteItem(selectedItem);
+            houseHoldItemViewModel.deleteItem(selectedItem);
             navController.navigate(R.id.confirm_action);
         });
 
@@ -152,7 +145,7 @@ public class EditHouseHoldItemFragment extends Fragment {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.ENGLISH);
 
             HouseHoldItem houseHoldItem = new HouseHoldItem(selectedItem.getId(), description, make, LocalDate.parse(date, formatter), Double.parseDouble(value), serialNumber, comment, model, null, tags);
-            houseHoldItemRepository.editItem(houseHoldItem);
+            houseHoldItemViewModel.editItem(houseHoldItem);
 
             navController.navigate(R.id.confirm_action);
         });

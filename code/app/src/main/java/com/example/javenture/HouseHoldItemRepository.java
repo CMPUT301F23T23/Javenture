@@ -3,14 +3,19 @@ package com.example.javenture;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
 
@@ -23,10 +28,55 @@ import java.util.Locale;
 public class HouseHoldItemRepository {
     private FirebaseFirestore db;
     private FirebaseUser user;
+    private AuthenticationService authService;
 
-    public HouseHoldItemRepository(FirebaseUser user) {
+    public HouseHoldItemRepository() {
         db = FirebaseFirestore.getInstance();
-        this.user = user;
+        authService = new AuthenticationService();
+        user = authService.getCurrentUser();
+    }
+
+    public interface OnItemsFetchedListener {
+        void onItemsFetched(ArrayList<HouseHoldItem> items);
+    }
+
+    /**
+     * Observe changes to the items collection in the db
+     * @param listener listener to be called when the items collection changes
+     */
+    public ListenerRegistration observeItems(OnItemsFetchedListener listener) {
+        final CollectionReference itemsRef = db.collection("users").document(user.getUid()).collection("items");
+        return itemsRef.addSnapshotListener((value, error) -> {
+                    if (error != null) {
+                        Log.w("db", "Listen failed.", error);
+                        listener.onItemsFetched(new ArrayList<>());
+                        return;
+                    }
+                    ArrayList<HouseHoldItem> items = new ArrayList<>();
+                    for (QueryDocumentSnapshot document : value) {
+                        HouseHoldItem item = new HouseHoldItem();
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.ENGLISH);
+                        item.setId(document.getId());
+                        item.setDescription(document.getString("description"));
+                        item.setMake(document.getString("make"));
+                        item.setDatePurchased(LocalDate.parse(document.getString("datePurchased"), formatter));
+                        item.setPrice(document.getDouble("price"));
+                        item.setSerialNumber(document.getString("serialNumber"));
+                        item.setComment(document.getString("comment"));
+                        item.setModel(document.getString("model"));
+                        List<String> tagNames = (List<String>) document.get("tags");
+                        List<Tag> tags = new ArrayList<>();
+                        if (tagNames != null) {
+                            for (String tagName : tagNames) {
+                                tags.add(new Tag(tagName));
+                            }
+                        }
+                        item.setTags(tags);
+                        items.add(item);
+                    }
+                    listener.onItemsFetched(items);
+                }
+        );
     }
 
     public ArrayList<HouseHoldItem> fetchItems(OnSuccessListener<ArrayList<HouseHoldItem>> onSuccessListener) {
@@ -129,7 +179,7 @@ public class HouseHoldItemRepository {
      * Delete multiple items from the db
      * @param items list of items to delete
      */
-    public void deleteItems(List<HouseHoldItem> items, OnSuccessListener<Void> onSuccessListener) {
+    public void deleteItems(List<HouseHoldItem> items) {
         if (user == null) {
             return;
         }
@@ -143,7 +193,6 @@ public class HouseHoldItemRepository {
                     @Override
                     public void onSuccess(Void unused) {
                         Log.d("db", "Documents deleted");
-                        onSuccessListener.onSuccess(null);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -154,7 +203,7 @@ public class HouseHoldItemRepository {
                 });
     }
 
-    public void updateItems(List<HouseHoldItem> items, OnSuccessListener<Void> onSuccessListener) {
+    public void editItems(List<HouseHoldItem> items) {
         if (user == null) {
             return;
         }
@@ -168,7 +217,6 @@ public class HouseHoldItemRepository {
                     @Override
                     public void onSuccess(Void unused) {
                         Log.d("db", "Documents updated");
-                        onSuccessListener.onSuccess(null);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
