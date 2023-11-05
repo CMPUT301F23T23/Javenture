@@ -115,7 +115,7 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.example.javenture.TagInputView
+        <com.example.javenture.ChipInputView
             android:id="@+id/tag_input_view"
             android:layout_marginTop="8dp"
             android:layout_width="match_parent"

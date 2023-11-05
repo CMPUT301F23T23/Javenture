@@ -31,7 +31,7 @@ public class EditHouseHoldItemFragment extends Fragment {
     private TextInputEditText descriptionEditText;
     private TextInputEditText valueEditText;
     private TextInputEditText dateEditText;
-    private TagInputView tagInputView;
+    private ChipInputView chipInputView;
     private TextInputEditText commentEditText;
 
     private HouseHoldItemViewModel houseHoldItemViewModel;
@@ -50,7 +50,8 @@ public class EditHouseHoldItemFragment extends Fragment {
         descriptionEditText = binding.descriptionEditText;
         valueEditText = binding.valueEditText;
         dateEditText = binding.datePurchasedEditText;
-        tagInputView = binding.tagInputView;
+        chipInputView = binding.tagInputView;
+        chipInputView.setHint("Tags");
         commentEditText = binding.commentEditText;
 
         houseHoldItemViewModel = new ViewModelProvider(requireActivity()).get(HouseHoldItemViewModel.class);
@@ -104,7 +105,11 @@ public class EditHouseHoldItemFragment extends Fragment {
             String description = descriptionEditText.getText().toString();
             String value = valueEditText.getText().toString();
             String date = dateEditText.getText().toString();
-            ArrayList<Tag> tags = tagInputView.getTags();
+            ArrayList<String> chipWords = chipInputView.getChipWords();
+            ArrayList<Tag> tags = new ArrayList<>();
+            for (String word : chipWords) {
+                tags.add(new Tag(word));
+            }
             String comment = commentEditText.getText().toString();
 
             if (make.isEmpty()) {
@@ -174,6 +179,11 @@ public class EditHouseHoldItemFragment extends Fragment {
         descriptionEditText.setText(item.getDescription());
         valueEditText.setText(String.format("%.2f", item.getPrice()));
         dateEditText.setText(item.getFormattedDatePurchased());
-        tagInputView.addTagsToChipGroup(item.getTags());
+
+        ArrayList<String> tags = new ArrayList<>();
+        for (Tag tag : item.getTags()) {
+            tags.add(tag.getName());
+        }
+        chipInputView.addChipsToChipGroup(tags);
     }
 }
