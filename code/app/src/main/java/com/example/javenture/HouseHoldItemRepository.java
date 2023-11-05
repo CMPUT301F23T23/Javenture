@@ -6,6 +6,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.util.Pair;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -97,6 +98,9 @@ public class HouseHoldItemRepository {
             case "description_keywords":
                 filteredItemDocs = filterByDescriptionsKeywords(itemDocs, sortAndFilterOption.getDescriptionKeywords());
                 break;
+            case "date_range":
+                filteredItemDocs = filterByDateRange(itemDocs, sortAndFilterOption.getDateRange());
+                break;
         }
         return filteredItemDocs;
     }
@@ -130,6 +134,26 @@ public class HouseHoldItemRepository {
 //                break;
         }
         return sortedItemDocs;
+    }
+
+    /**
+     * Filter documents by date range.
+     * @param itemDocs List of documents to be filtered
+     * @param dateRange Pair of start and end dates
+     * @return List of filtered documents
+     */
+    private List<DocumentSnapshot> filterByDateRange(List<DocumentSnapshot> itemDocs, Pair<LocalDate, LocalDate> dateRange) {
+        List<DocumentSnapshot> filteredItemDocs = new ArrayList<>();
+        if (dateRange == null) {
+            return filteredItemDocs;
+        }
+        for (DocumentSnapshot itemDoc : itemDocs) {
+            LocalDate date = parseDate(itemDoc.getString("datePurchased"));
+            if (date != null && date.compareTo(dateRange.first) >= 0 && date.compareTo(dateRange.second) <= 0) {
+                filteredItemDocs.add(itemDoc);
+            }
+        }
+        return filteredItemDocs;
     }
 
     /**
@@ -190,6 +214,12 @@ public class HouseHoldItemRepository {
         return itemDocs;
     }
 
+    /**
+     * Sort documents by value
+     * @param itemDocs List of documents to be sorted
+     * @param sortOption "ascending" or "descending"
+     * @return List of sorted documents
+     */
     private List<DocumentSnapshot> sortByValue(List<DocumentSnapshot> itemDocs, String sortOption) {
         Comparator<DocumentSnapshot> comparator = (doc1, doc2) -> {
             Double value1 = doc1.getDouble("price");
@@ -298,11 +328,10 @@ public class HouseHoldItemRepository {
      */
     private HouseHoldItem feedDataToItem(DocumentSnapshot document) {
         HouseHoldItem item = new HouseHoldItem();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.ENGLISH);
         item.setId(document.getId());
         item.setDescription(document.getString("description"));
         item.setMake(document.getString("make"));
-        item.setDatePurchased(LocalDate.parse(document.getString("datePurchased"), formatter));
+        item.setDatePurchased(parseDate(document.getString("datePurchased")));
         item.setPrice(document.getDouble("price"));
         item.setSerialNumber(document.getString("serialNumber"));
         item.setComment(document.getString("comment"));
