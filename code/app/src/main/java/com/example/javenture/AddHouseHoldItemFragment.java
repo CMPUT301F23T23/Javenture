@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public class AddHouseHoldItemFragment extends Fragment {
@@ -98,11 +99,7 @@ public class AddHouseHoldItemFragment extends Fragment {
             String description = descriptionEditText.getText().toString();
             String value = valueEditText.getText().toString();
             String date = dateEditText.getText().toString();
-            ArrayList<String> chipWords = chipInputView.getChipWords();
-            ArrayList<Tag> tags = new ArrayList<>();
-            for (String word : chipWords) {
-                tags.add(new Tag(word));
-            }
+            List<String> tags = chipInputView.getChipWords();
             String comment = commentEditText.getText().toString();
 
             if (make.isEmpty()) {

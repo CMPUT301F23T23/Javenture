@@ -21,10 +21,10 @@ public class HouseHoldItem implements Serializable {
     private String comment;
     private String model;
     private List<URI> photoURIs;
-    private List<Tag> tags;
+    private List<String> tags;
 
     public HouseHoldItem() { }
-    public HouseHoldItem(String id, String description, String make, LocalDate datePurchased, double price, String serialNumber, String comment, String model, List<URI> photoURIs, List<Tag> tags) {
+    public HouseHoldItem(String id, String description, String make, LocalDate datePurchased, double price, String serialNumber, String comment, String model, List<URI> photoURIs, List<String> tags) {
         this.id = id;
         this.description = description;
         this.make = make;
@@ -46,11 +46,7 @@ public class HouseHoldItem implements Serializable {
         map.put("serialNumber", serialNumber);
         map.put("comment", comment);
         map.put("model", model);
-        ArrayList<String> tagNames = new ArrayList<>();
-        for (Tag tag : tags) {
-            tagNames.add(tag.getName());
-        }
-        map.put("tags", tagNames);
+        map.put("tags", tags);
         // TODO photos
         return map;
     }
@@ -124,11 +120,11 @@ public class HouseHoldItem implements Serializable {
         this.photoURIs = photoURIs;
     }
 
-    public List<Tag> getTags() {
+    public List<String> getTags() {
         return tags;
     }
 
-    public void setTags(List<Tag> tags) {
+    public void setTags(List<String> tags) {
         this.tags = tags;
     }
 
@@ -137,12 +133,12 @@ public class HouseHoldItem implements Serializable {
      * @param tag tag to check
      * @return true if the item has the tag, false otherwise
      */
-    public boolean hasTag(Tag tag) {
+    public boolean hasTag(String tag) {
         if (tags == null) {
             return false;
         }
-        for (Tag t : tags) {
-            if (t.getName().equals(tag.getName())) {
+        for (String t : tags) {
+            if (t.equals(tag)) {
                 return true;
             }
         }
@@ -153,7 +149,7 @@ public class HouseHoldItem implements Serializable {
      * Assign a tag to the item
      * @param tag tag to assign
      */
-    public void addTag(Tag tag) {
+    public void addTag(String tag) {
         if (tags == null) {
             tags = new ArrayList<>();
         }

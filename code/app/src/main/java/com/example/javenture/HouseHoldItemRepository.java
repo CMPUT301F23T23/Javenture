@@ -130,8 +130,8 @@ public class HouseHoldItemRepository {
                 sortedItemDocs = sortByValue(itemDocs, sortAndFilterOption.getSortOption());
                 break;
             case "tags":
-//                sortedItemDocs = sortByTags(itemDocs, sortOption);
-//                break;
+                sortedItemDocs = sortByTags(itemDocs, sortAndFilterOption.getSortOption());
+                break;
         }
         return sortedItemDocs;
     }
@@ -355,6 +355,45 @@ public class HouseHoldItemRepository {
 
     }
 
+    /**
+     * Sorts a list of DocumentSnapshot items by their associated tags.
+     *
+     * This function sorts documents based on the lexicographical order of their first tag.
+     * Documents are grouped by their tags, and the order is determined by the 'sortOption' parameter.
+     * If a document has multiple tags, the first tag in alphabetical order is used for sorting.
+     * Documents that do not contain any tags are placed at the end of the list.
+     *
+     * @param itemDocs   The list of DocumentSnapshot items to be sorted.
+     * @param sortOption A string indicating the sort order: 'ascending' or 'descending'.
+     * @return A sorted list of DocumentSnapshot items based on the specified sorting option.
+     */
+    private List<DocumentSnapshot> sortByTags(List<DocumentSnapshot> itemDocs, String sortOption) {
+        Comparator<DocumentSnapshot> tagComparator = (doc1, doc2) -> {
+            List<String> tags1 = (List<String>) doc1.get("tags");
+            List<String> tags2 = (List<String>) doc2.get("tags");
+
+            String firstTag1 = (tags1 != null && !tags1.isEmpty()) ? Collections.min(tags1) : null;
+            String firstTag2 = (tags2 != null && !tags2.isEmpty()) ? Collections.min(tags2) : null;
+
+            // Items without tags go at the end
+            if (firstTag1 == null) return 1;
+            if (firstTag2 == null) return -1;
+
+            // Compare the first tags
+            return firstTag1.compareToIgnoreCase(firstTag2);
+        };
+
+        // Sort ascending or descending based on the sortOption
+        if ("ascending".equalsIgnoreCase(sortOption)) {
+            Collections.sort(itemDocs, tagComparator);
+        } else if ("descending".equalsIgnoreCase(sortOption)) {
+            Collections.sort(itemDocs, Collections.reverseOrder(tagComparator));
+        } else {
+            throw new IllegalArgumentException("Invalid sort option");
+        }
+        return itemDocs;
+    }
+
 
     /**
      * Given a document, create an item object
@@ -371,14 +410,7 @@ public class HouseHoldItemRepository {
         item.setSerialNumber(document.getString("serialNumber"));
         item.setComment(document.getString("comment"));
         item.setModel(document.getString("model"));
-        List<String> tagNames = (List<String>) document.get("tags");
-        List<Tag> tags = new ArrayList<>();
-        if (tagNames != null) {
-            for (String tagName : tagNames) {
-                tags.add(new Tag(tagName));
-            }
-        }
-        item.setTags(tags);
+        item.setTags((List<String>) document.get("tags"));
         return item;
     }
 

@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public class EditHouseHoldItemFragment extends Fragment {
@@ -105,11 +106,7 @@ public class EditHouseHoldItemFragment extends Fragment {
             String description = descriptionEditText.getText().toString();
             String value = valueEditText.getText().toString();
             String date = dateEditText.getText().toString();
-            ArrayList<String> chipWords = chipInputView.getChipWords();
-            ArrayList<Tag> tags = new ArrayList<>();
-            for (String word : chipWords) {
-                tags.add(new Tag(word));
-            }
+            List<String> tags = chipInputView.getChipWords();
             String comment = commentEditText.getText().toString();
 
             if (make.isEmpty()) {
@@ -179,11 +176,6 @@ public class EditHouseHoldItemFragment extends Fragment {
         descriptionEditText.setText(item.getDescription());
         valueEditText.setText(String.format("%.2f", item.getPrice()));
         dateEditText.setText(item.getFormattedDatePurchased());
-
-        ArrayList<String> tags = new ArrayList<>();
-        for (Tag tag : item.getTags()) {
-            tags.add(tag.getName());
-        }
-        chipInputView.addChipsToChipGroup(tags);
+        chipInputView.addChipsToChipGroup(item.getTags());
     }
 }
