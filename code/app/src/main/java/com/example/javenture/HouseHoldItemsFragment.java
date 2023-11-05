@@ -44,7 +44,6 @@ public class HouseHoldItemsFragment extends Fragment {
     private RecyclerView householdItemList;
     private HouseHoldItemsAdapter houseHoldItemsAdapter;
     private HouseHoldItemViewModel houseHoldItemViewModel;
-    private HouseHoldItemRepository houseHoldItemRepository;
 
     @Override
     public View onCreateView(
@@ -72,21 +71,14 @@ public class HouseHoldItemsFragment extends Fragment {
                 }
             });
         }
-        houseHoldItemRepository = new HouseHoldItemRepository(authService.getCurrentUser());
 
         householdItemList = binding.householdItemList;
         householdItemList.setLayoutManager(new LinearLayoutManager(this.getContext()));
         houseHoldItemViewModel = new ViewModelProvider(requireActivity()).get(HouseHoldItemViewModel.class);
 
-        // add all items from db to view model
-        houseHoldItemRepository.fetchItems(items -> {
-            houseHoldItemViewModel.clear();
-            for (HouseHoldItem item : items) {
-                houseHoldItemViewModel.addHouseHoldItem(item);
-            }
-        });
+        houseHoldItemViewModel.observeItems();
 
-        // observe changes to the household items
+        // Observe the LiveData, update the UI when the data changes
         houseHoldItemViewModel.getHouseHoldItems().observe(getViewLifecycleOwner(), houseHoldItems -> {
             houseHoldItemsAdapter.notifyDataSetChanged();
             updateTotalEstimatedValue();
@@ -154,19 +146,8 @@ public class HouseHoldItemsFragment extends Fragment {
                     .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            // Proceed with the deletion
-                            houseHoldItemRepository.deleteItems(selectedItems, new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void unused) {
-                                    houseHoldItemsAdapter.exitMultiSelectionMode();
-                                    Snackbar.make(binding.getRoot(), "Deleted " + selectedItems.size() + " items", Snackbar.LENGTH_LONG)
-                                            .setAnchorView(binding.totalMonthlyChargeContainer)
-                                            .setAction("Action", null).show();
-                                    for (HouseHoldItem item : selectedItems) {
-                                        houseHoldItemViewModel.removeHouseHoldItem(item);
-                                    }
-                                }
-                            });
+                            houseHoldItemViewModel.deleteItems(selectedItems);
+                            houseHoldItemsAdapter.exitMultiSelectionMode();
                         }
                     })
                     .setNegativeButton("Cancel", null)  // Dismiss the dialog if "Cancel" is clicked
@@ -184,59 +165,24 @@ public class HouseHoldItemsFragment extends Fragment {
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
             LayoutInflater inflater = requireActivity().getLayoutInflater();
             View dialogView = inflater.inflate(R.layout.dialog_tag_assign, null);
+            TagInputView tagInputView = dialogView.findViewById(R.id.tag_input_view);
             builder.setView(dialogView);
             builder.setTitle("Assign Tags");
 
-            Set<String> tagNames = new HashSet<>();
-            TextInputEditText tagEditText = dialogView.findViewById(R.id.tag_edit_text);
-            ChipGroup tagChipGroup = dialogView.findViewById(R.id.tag_chip_group);
-
-            tagEditText.setOnEditorActionListener((view1, actionId, event) -> {
-                if (actionId == EditorInfo.IME_ACTION_DONE || (event.getAction() == KeyEvent.ACTION_DOWN && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)) {
-                    String enteredText = tagEditText.getText().toString();
-
-                    if (!enteredText.isEmpty() && !tagNames.contains(enteredText)) {
-                        Chip chip = new Chip(getContext());
-                        chip.setText(enteredText);
-                        chip.setCloseIconVisible(true);
-                        chip.setOnCloseIconClickListener(v1 -> {
-                            tagChipGroup.removeView(chip);
-                            tagNames.remove(enteredText);
-                        });
-                        tagChipGroup.addView(chip);
-                        tagEditText.setText("");
-                        tagNames.add(enteredText);
-                    }
-                    return true;
-                }
-                return false;
-            });
-
             builder.setPositiveButton("Add", (dialog, which) -> {
                 houseHoldItemsAdapter.exitMultiSelectionMode();
-                // get tags and add to list
-                int chipCount = tagChipGroup.getChildCount();
-                ArrayList<Tag> tags = new ArrayList<>();
-                for (int i = 0; i < chipCount; i++) {
-                    Chip chip = (Chip) tagChipGroup.getChildAt(i);
-                    tags.add(new Tag(chip.getText().toString()));
-                }
+
+                List<Tag> tags = tagInputView.getTags();
+                int tagCount = tagInputView.getTagCount();
+
+                // assign unique tags to items
                 for (HouseHoldItem item : selectedItems) {
                     for (Tag tag : tags) {
                         item.addTag(tag);
                     }
                 }
-                houseHoldItemRepository.updateItems(selectedItems, new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void unused) {
-                        Snackbar.make(binding.getRoot(), "Assigned " + chipCount + " tags to " + selectedItems.size() + " items", Snackbar.LENGTH_LONG)
-                                .setAnchorView(binding.totalMonthlyChargeContainer)
-                                .setAction("Action", null).show();
-                        for (HouseHoldItem item : selectedItems) {
-                            houseHoldItemViewModel.updateHouseHoldItem(item);
-                        }
-                    }
-                });
+                houseHoldItemViewModel.editItems(selectedItems);
+                houseHoldItemsAdapter.exitMultiSelectionMode();
             });
             builder.setNegativeButton("Cancel", null);
 
@@ -249,6 +195,7 @@ public class HouseHoldItemsFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        houseHoldItemViewModel.stopObserveItems();
         binding = null;
     }
 

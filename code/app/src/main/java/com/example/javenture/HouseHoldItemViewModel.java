@@ -4,14 +4,36 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.google.firebase.firestore.ListenerRegistration;
+
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class HouseHoldItemViewModel extends ViewModel {
+    private HouseHoldItemRepository itemRepository = new HouseHoldItemRepository();
     private final MutableLiveData<ArrayList<HouseHoldItem>> houseHoldItems = new MutableLiveData<>(new ArrayList<>());
+    private ListenerRegistration listenerRegistration;
 
     public LiveData<ArrayList<HouseHoldItem>> getHouseHoldItems() {
         return houseHoldItems;
+    }
+
+    /**
+     * Observe changes to the items collection in the db
+     */
+    public void observeItems() {
+        listenerRegistration = itemRepository.observeItems(items -> houseHoldItems.postValue(items));
+    }
+
+    /**
+     * Stop observing changes to the items collection in the db
+     */
+    public void stopObserveItems() {
+        if (listenerRegistration != null) {
+            listenerRegistration.remove();
+            listenerRegistration = null;
+        }
     }
 
     /**
@@ -27,52 +49,42 @@ public class HouseHoldItemViewModel extends ViewModel {
      * Add an HouseHoldItem object to the list of houseHoldItems
      * @param houseHoldItem HouseHoldItem object to be added
      */
-    public void addHouseHoldItem(HouseHoldItem houseHoldItem) {
-        ArrayList<HouseHoldItem> currentHouseHoldItems = houseHoldItems.getValue();
-        if (currentHouseHoldItems != null) {
-            currentHouseHoldItems.add(houseHoldItem);
-            houseHoldItems.postValue(currentHouseHoldItems);
-        }
+    public void addItem(HouseHoldItem houseHoldItem) {
+        itemRepository.addItem(houseHoldItem);
     }
 
     /**
      * Remove an HouseHoldItem object from the list of houseHoldItems
      * @param item HouseHoldItem object to be removed
      */
-    public void removeHouseHoldItem(HouseHoldItem item) {
-        ArrayList<HouseHoldItem> currentHouseHoldItems = houseHoldItems.getValue();
-        if (currentHouseHoldItems != null) {
-            currentHouseHoldItems.remove(item);
-            houseHoldItems.postValue(currentHouseHoldItems);
-        }
+    public void deleteItem(HouseHoldItem item) {
+        itemRepository.deleteItem(item);
     }
 
     /**
-     * Edit an HouseHoldItem object at a given index
+     * Remove a list of HouseHoldItem objects from the list of houseHoldItems
+     * @param items list of HouseHoldItem objects to be removed
+     */
+    public void deleteItems(List<HouseHoldItem> items) {
+        itemRepository.deleteItems(items);
+    }
+
+    /**
+     * Edit an HouseHoldItem object.
+     * The object is identified by its id
      * @param item HouseHoldItem object with updated values
      */
-    public void updateHouseHoldItem(HouseHoldItem item) {
-        ArrayList<HouseHoldItem> currentHouseHoldItems = houseHoldItems.getValue();
-        if (currentHouseHoldItems != null) {
-            for (int index = 0; index < currentHouseHoldItems.size(); index++) {
-                if (currentHouseHoldItems.get(index).getId().equals(item.getId())) {
-                    currentHouseHoldItems.set(index, item);
-                    houseHoldItems.postValue(currentHouseHoldItems);
-                    break;
-                }
-            }
-        }
+    public void editItem(HouseHoldItem item) {
+        itemRepository.editItem(item);
     }
 
     /**
-     * Empty the list.
+     * Edit a list of HouseHoldItem objects.
+     * The objects are identified by their ids
+     * @param items list of HouseHoldItem objects with updated values
      */
-    public void clear() {
-        ArrayList<HouseHoldItem> currentHouseHoldItems = houseHoldItems.getValue();
-        if (currentHouseHoldItems != null) {
-            currentHouseHoldItems.clear();
-            houseHoldItems.postValue(currentHouseHoldItems);
-        }
+    public void editItems(List<HouseHoldItem> items) {
+        itemRepository.editItems(items);
     }
 
     /**
