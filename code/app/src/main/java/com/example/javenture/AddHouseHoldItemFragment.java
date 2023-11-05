@@ -50,7 +50,7 @@ public class AddHouseHoldItemFragment extends Fragment {
         descriptionEditText = binding.descriptionEditText;
         valueEditText = binding.valueEditText;
         dateEditText = binding.datePurchasedEditText;
-        chipInputView = binding.tagInputView;
+        chipInputView = binding.chipInputView;
         chipInputView.setHint("Tags");
         commentEditText = binding.commentEditText;
 

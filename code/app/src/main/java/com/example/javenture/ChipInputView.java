@@ -94,7 +94,7 @@ public class ChipInputView extends ConstraintLayout {
             @Override
             public void afterTextChanged(Editable editable) {
                 String text = editable.toString();
-                if (!text.isEmpty() && text.endsWith(",")) {
+                if (!text.isEmpty() && (text.endsWith(",") || text.endsWith(" ") || text.endsWith("\n"))) {
                     addNewChip(text.substring(0, text.length() - 1));
                     editable.clear();
                 }
@@ -108,7 +108,7 @@ public class ChipInputView extends ConstraintLayout {
         }
         Chip newChip = (Chip) LayoutInflater.from(getContext()).inflate(R.layout.standalone_chip, chipGroup, false);
         newChip.setId(ViewCompat.generateViewId());
-        newChip.setText(text);
+        newChip.setText(text.trim());
         newChip.setOnCloseIconClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -136,6 +136,12 @@ public class ChipInputView extends ConstraintLayout {
             Chip chip = (Chip) chipGroup.getChildAt(i);
             words.add(chip.getText().toString());
         }
+        // add the last word in the EditText
+        TextInputLayout textInputLayout = findViewById(R.id.text_input_layout);
+        EditText editText = textInputLayout.getEditText();
+        if (editText.getText().toString().trim().length() > 0) {
+            words.add(editText.getText().toString().trim());
+        }
         return words;
     }
 
@@ -162,7 +168,7 @@ public class ChipInputView extends ConstraintLayout {
         for (String word : words) {
             Chip chip = (Chip) LayoutInflater.from(getContext()).inflate(R.layout.standalone_chip, chipGroup, false);
             chip.setId(ViewCompat.generateViewId());
-            chip.setText(word);
+            chip.setText(word.trim());
             chip.setOnCloseIconClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View view) {
