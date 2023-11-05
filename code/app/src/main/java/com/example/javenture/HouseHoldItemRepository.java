@@ -371,14 +371,7 @@ public class HouseHoldItemRepository {
         item.setSerialNumber(document.getString("serialNumber"));
         item.setComment(document.getString("comment"));
         item.setModel(document.getString("model"));
-        List<String> tagNames = (List<String>) document.get("tags");
-        List<Tag> tags = new ArrayList<>();
-        if (tagNames != null) {
-            for (String tagName : tagNames) {
-                tags.add(new Tag(tagName));
-            }
-        }
-        item.setTags(tags);
+        item.setTags((List<String>) document.get("tags"));
         return item;
     }
 

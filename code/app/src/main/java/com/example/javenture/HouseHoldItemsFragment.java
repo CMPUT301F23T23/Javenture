@@ -164,16 +164,11 @@ public class HouseHoldItemsFragment extends Fragment {
             builder.setPositiveButton("Add", (dialog, which) -> {
                 houseHoldItemsAdapter.exitMultiSelectionMode();
 
-                List<String> chipWords = chipInputView.getChipWords();
-                ArrayList<Tag> tags = new ArrayList<>();
-                for (String word : chipWords) {
-                    Tag tag = new Tag(word);
-                    tags.add(tag);
-                }
+                List<String> tags = chipInputView.getChipWords();
 
                 // assign unique tags to items
                 for (HouseHoldItem item : selectedItems) {
-                    for (Tag tag : tags) {
+                    for (String tag : tags) {
                         item.addTag(tag);
                     }
                 }
