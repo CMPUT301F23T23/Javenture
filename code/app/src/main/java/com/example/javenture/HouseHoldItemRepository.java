@@ -123,8 +123,8 @@ public class HouseHoldItemRepository {
                 sortedItemDocs = sortByMake(itemDocs, sortAndFilterOption.getSortOption());
                 break;
             case "value":
-//                sortedItemDocs = sortByValue(itemDocs, sortOption);
-//                break;
+                sortedItemDocs = sortByValue(itemDocs, sortAndFilterOption.getSortOption());
+                break;
             case "tags":
 //                sortedItemDocs = sortByTags(itemDocs, sortOption);
 //                break;
@@ -177,6 +177,29 @@ public class HouseHoldItemRepository {
             if (make2 == null) return 1;
 
             return make1.compareToIgnoreCase(make2); // Ascending
+        };
+
+        // Sort ascending or descending based on the sortOption
+        if ("ascending".equalsIgnoreCase(sortOption)) {
+            Collections.sort(itemDocs, comparator);
+        } else if ("descending".equalsIgnoreCase(sortOption)) {
+            Collections.sort(itemDocs, Collections.reverseOrder(comparator));
+        } else {
+            throw new IllegalArgumentException("Invalid sort option");
+        }
+        return itemDocs;
+    }
+
+    private List<DocumentSnapshot> sortByValue(List<DocumentSnapshot> itemDocs, String sortOption) {
+        Comparator<DocumentSnapshot> comparator = (doc1, doc2) -> {
+            Double value1 = doc1.getDouble("price");
+            Double value2 = doc2.getDouble("price");
+
+            // null checks if necessary
+            if (value1 == null) return (value2 == null) ? 0 : -1;
+            if (value2 == null) return 1;
+
+            return value1.compareTo(value2); // Ascending
         };
 
         // Sort ascending or descending based on the sortOption
