@@ -1,5 +1,7 @@
 package com.example.javenture;
 
+import static com.google.firebase.firestore.core.UserData.Source.Set;
+
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -10,18 +12,23 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
 
+import org.w3c.dom.Document;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 
@@ -44,7 +51,7 @@ public class HouseHoldItemRepository {
      * Observe changes to the items collection in the db
      * @param listener listener to be called when the items collection changes
      */
-    public ListenerRegistration observeItems(OnItemsFetchedListener listener) {
+    public ListenerRegistration observeItems(OnItemsFetchedListener listener, @Nullable String filterType, @Nullable ArrayList<String> keywords) {
         final CollectionReference itemsRef = db.collection("users").document(user.getUid()).collection("items");
         return itemsRef.addSnapshotListener((value, error) -> {
                     if (error != null) {
@@ -52,73 +59,109 @@ public class HouseHoldItemRepository {
                         listener.onItemsFetched(new ArrayList<>());
                         return;
                     }
+                    List<DocumentSnapshot> filteredDocuments = filterDocuments(filterType, keywords, value.getDocuments());
                     ArrayList<HouseHoldItem> items = new ArrayList<>();
-                    for (QueryDocumentSnapshot document : value) {
-                        HouseHoldItem item = new HouseHoldItem();
-                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.ENGLISH);
-                        item.setId(document.getId());
-                        item.setDescription(document.getString("description"));
-                        item.setMake(document.getString("make"));
-                        item.setDatePurchased(LocalDate.parse(document.getString("datePurchased"), formatter));
-                        item.setPrice(document.getDouble("price"));
-                        item.setSerialNumber(document.getString("serialNumber"));
-                        item.setComment(document.getString("comment"));
-                        item.setModel(document.getString("model"));
-                        List<String> tagNames = (List<String>) document.get("tags");
-                        List<Tag> tags = new ArrayList<>();
-                        if (tagNames != null) {
-                            for (String tagName : tagNames) {
-                                tags.add(new Tag(tagName));
-                            }
-                        }
-                        item.setTags(tags);
+                    for (DocumentSnapshot document : filteredDocuments) {
+                        HouseHoldItem item = feedDataToItem(document);
                         items.add(item);
                     }
+                    Log.d("db", "Items fetched: " + items.size());
                     listener.onItemsFetched(items);
                 }
         );
     }
 
-    public ArrayList<HouseHoldItem> fetchItems(OnSuccessListener<ArrayList<HouseHoldItem>> onSuccessListener) {
-        if (user == null) {
-            return new ArrayList<>();
+    /**
+     * Filter documents by given filter type and keywords
+     * @param filterType String representing the filter type
+     * @param keywords List of keywords to filter by
+     * @param itemDocs List of documents to be filtered
+     * @return List of filtered documents
+     */
+    private List<DocumentSnapshot> filterDocuments(@Nullable String filterType, @Nullable ArrayList<String> keywords, List<DocumentSnapshot> itemDocs) {
+        if (filterType == null) {
+            return itemDocs;
         }
-        CollectionReference itemsRef = db.collection("users").document(user.getUid()).collection("items");
-        // fetch items from db
-        ArrayList<HouseHoldItem> items = new ArrayList<>();
-        itemsRef.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                Log.d("db", "Fetching documents");
-                for (QueryDocumentSnapshot document : task.getResult()) {
-                    HouseHoldItem item = new HouseHoldItem();
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.ENGLISH);
-                    item.setId(document.getId());
-                    item.setDescription(document.getString("description"));
-                    item.setMake(document.getString("make"));
-                    item.setDatePurchased(LocalDate.parse(document.getString("datePurchased"), formatter));
-                    item.setPrice(document.getDouble("price"));
-                    item.setSerialNumber(document.getString("serialNumber"));
-                    item.setComment(document.getString("comment"));
-                    item.setModel(document.getString("model"));
-                    List<String> tagNames = (List<String>) document.get("tags");
-                    List<Tag> tags = new ArrayList<>();
-                    if (tagNames != null) {
-                        for (String tagName : tagNames) {
-                            tags.add(new Tag(tagName));
-                        }
-                    }
-                    item.setTags(tags);
-                    items.add(item);
-                }
-                onSuccessListener.onSuccess(items);
-            } else {
-                Log.d("db", "Error getting documents: ", task.getException());
-            }
-        });
-
-        return items;
+        List<DocumentSnapshot> filteredItemDocs = new ArrayList<>();
+        Log.d("db", "filterType: " + filterType);
+        Log.d("db", "keywords: " + keywords);
+        switch (filterType) {
+            case "tags":
+//                filteredItemDocs = filterByTags(itemDocs, keywords);
+                break;
+            case "description_keywords":
+                filteredItemDocs = filterByDescriptionsKeywords(itemDocs, keywords);
+                break;
+        }
+        return filteredItemDocs;
     }
 
+    /**
+     * Filter documents by description keywords.
+     * If a document's description contains all of the keywords, it will be included in the filtered list.
+     * @param itemDocs List of documents to be filtered
+     * @param keywords List of keywords to filter by
+     * @return List of filtered documents
+     */
+    private List<DocumentSnapshot> filterByDescriptionsKeywords(List<DocumentSnapshot> itemDocs, @Nullable ArrayList<String> keywords) {
+        List<DocumentSnapshot> filteredItemDocs = new ArrayList<>();
+        if (keywords == null) {
+            return filteredItemDocs;
+        }
+        for (DocumentSnapshot itemDoc : itemDocs) {
+            String description = itemDoc.getString("description");
+            if (description != null) {
+                HashSet<String> descriptionWords = new HashSet<>();
+                for (String word : description.split(" ")) {
+                    descriptionWords.add(word.toLowerCase());
+                }
+                boolean containsAllKeywords = true;
+                for (String keyword : keywords) {
+                    if (!descriptionWords.contains(keyword.toLowerCase())) {
+                        containsAllKeywords = false;
+                        break;
+                    }
+                }
+                if (containsAllKeywords) {
+                    filteredItemDocs.add(itemDoc);
+                }
+            }
+        }
+        return filteredItemDocs;
+    }
+
+
+    /**
+     * Given a document, create an item object
+     * @param document document from the db
+     * @return item object
+     */
+    private HouseHoldItem feedDataToItem(DocumentSnapshot document) {
+        HouseHoldItem item = new HouseHoldItem();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.ENGLISH);
+        item.setId(document.getId());
+        item.setDescription(document.getString("description"));
+        item.setMake(document.getString("make"));
+        item.setDatePurchased(LocalDate.parse(document.getString("datePurchased"), formatter));
+        item.setPrice(document.getDouble("price"));
+        item.setSerialNumber(document.getString("serialNumber"));
+        item.setComment(document.getString("comment"));
+        item.setModel(document.getString("model"));
+        List<String> tagNames = (List<String>) document.get("tags");
+        List<Tag> tags = new ArrayList<>();
+        if (tagNames != null) {
+            for (String tagName : tagNames) {
+                tags.add(new Tag(tagName));
+            }
+        }
+        item.setTags(tags);
+        return item;
+    }
+
+    /**
+     * Add an item to the db
+     * @param item item to be added
+     */
     public void addItem(HouseHoldItem item) {
         if (user == null) {
             return;
@@ -158,6 +201,10 @@ public class HouseHoldItemRepository {
                 });
     }
 
+    /**
+     * Delete an item from the db
+     * @param item item to be deleted
+     */
     public void deleteItem(HouseHoldItem item) {
         if (user == null) {
             return;
@@ -203,6 +250,10 @@ public class HouseHoldItemRepository {
                 });
     }
 
+    /**
+     * Edit multiple items in the db
+     * @param items list of items to edit
+     */
     public void editItems(List<HouseHoldItem> items) {
         if (user == null) {
             return;

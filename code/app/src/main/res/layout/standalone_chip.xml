@@ -4,5 +4,5 @@
     android:layout_height="wrap_content"
     style="@style/Widget.MaterialComponents.Chip.Action"
     app:closeIconEnabled="true"
-    android:text="ExampleTag"
+    android:text="Example Chip"
     android:layout_width="wrap_content" />

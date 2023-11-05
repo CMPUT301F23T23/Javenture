@@ -19,29 +19,29 @@ import com.google.android.material.textfield.TextInputLayout;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TagInputView extends ConstraintLayout {
+public class ChipInputView extends ConstraintLayout {
 
     private ChipGroup chipGroup;
 
-    public TagInputView(Context context) {
+    public ChipInputView(Context context) {
         this(context, null);
     }
 
-    public TagInputView(Context context, AttributeSet attrs) {
+    public ChipInputView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public TagInputView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public ChipInputView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context, attrs);
     }
 
     private void init(Context context, AttributeSet attrs) {
-        LayoutInflater.from(context).inflate(R.layout.tags_input_layout, this, true);
+        LayoutInflater.from(context).inflate(R.layout.chip_input_layout, this, true);
 
         TextInputLayout textInputLayout = findViewById(R.id.text_input_layout);
         EditText editText = textInputLayout.getEditText();
-        chipGroup = findViewById(R.id.tags_chip_group);
+        chipGroup = findViewById(R.id.chip_group);
 
         editText.setOnFocusChangeListener(new OnFocusChangeListener() {
             @Override
@@ -94,7 +94,7 @@ public class TagInputView extends ConstraintLayout {
             @Override
             public void afterTextChanged(Editable editable) {
                 String text = editable.toString();
-                if (!text.isEmpty() && text.endsWith(",")) {
+                if (!text.isEmpty() && (text.endsWith(",") || text.endsWith(" ") || text.endsWith("\n"))) {
                     addNewChip(text.substring(0, text.length() - 1));
                     editable.clear();
                 }
@@ -103,12 +103,12 @@ public class TagInputView extends ConstraintLayout {
     }
 
     private void addNewChip(String text) {
-        if (isTagDuplicate(text)) {
+        if (isWordDuplicate(text)) {
             return;
         }
-        Chip newChip = (Chip) LayoutInflater.from(getContext()).inflate(R.layout.tag_chip, chipGroup, false);
+        Chip newChip = (Chip) LayoutInflater.from(getContext()).inflate(R.layout.standalone_chip, chipGroup, false);
         newChip.setId(ViewCompat.generateViewId());
-        newChip.setText(text);
+        newChip.setText(text.trim());
         newChip.setOnCloseIconClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -119,10 +119,10 @@ public class TagInputView extends ConstraintLayout {
     }
 
     /**
-     * Get the number of tags in the TagInputView
-     * @return number of tags
+     * Get the number of Chips in the ChipInputView
+     * @return number of Chips
      */
-    public int getTagCount() {
+    public int getChipCount() {
         return chipGroup.getChildCount();
     }
 
@@ -130,24 +130,30 @@ public class TagInputView extends ConstraintLayout {
      * Get the tags in the TagInputView
      * @return ArrayList of tags
      */
-    public ArrayList<Tag> getTags() {
-        ArrayList<Tag> tags = new ArrayList<>();
+    public ArrayList<String> getChipWords() {
+        ArrayList<String> words = new ArrayList<>();
         for (int i = 0; i < chipGroup.getChildCount(); i++) {
             Chip chip = (Chip) chipGroup.getChildAt(i);
-            tags.add(new Tag(chip.getText().toString()));
+            words.add(chip.getText().toString());
         }
-        return tags;
+        // add the last word in the EditText
+        TextInputLayout textInputLayout = findViewById(R.id.text_input_layout);
+        EditText editText = textInputLayout.getEditText();
+        if (editText.getText().toString().trim().length() > 0) {
+            words.add(editText.getText().toString().trim());
+        }
+        return words;
     }
 
     /**
-     * Check if a tag is already in the TagInputView
-     * @param tag tag to be checked
-     * @return true if tag is already in the TagInputView, false otherwise
+     * Check if a word is already in the ChipInputView
+     * @param word text to be checked
+     * @return true if the word is already in the ChipInputView, false otherwise
      */
-    private boolean isTagDuplicate(String tag) {
+    private boolean isWordDuplicate(String word) {
         for (int i = 0; i < chipGroup.getChildCount(); i++) {
             Chip chip = (Chip) chipGroup.getChildAt(i);
-            if (chip.getText().toString().equals(tag)) {
+            if (chip.getText().toString().equals(word)) {
                 return true;
             }
         }
@@ -155,14 +161,14 @@ public class TagInputView extends ConstraintLayout {
     }
 
     /**
-     * Given a list of tags, add them to the TagInputView
-     * @param tags list of tags
+     * Given a list of words, add them to the ChipInputView
+     * @param words list of words
      */
-    public void addTagsToChipGroup(List<Tag> tags) {
-        for (Tag tag : tags) {
-            Chip chip = (Chip) LayoutInflater.from(getContext()).inflate(R.layout.tag_chip, chipGroup, false);
+    public void addChipsToChipGroup(List<String> words) {
+        for (String word : words) {
+            Chip chip = (Chip) LayoutInflater.from(getContext()).inflate(R.layout.standalone_chip, chipGroup, false);
             chip.setId(ViewCompat.generateViewId());
-            chip.setText(tag.getName());
+            chip.setText(word.trim());
             chip.setOnCloseIconClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -171,6 +177,15 @@ public class TagInputView extends ConstraintLayout {
             });
             chipGroup.addView(chip);
         }
+    }
+
+    /**
+     * Set the hint of the ChipInputView
+     * @param hint hint
+     */
+    public void setHint(String hint) {
+        TextInputLayout textInputLayout = findViewById(R.id.text_input_layout);
+        textInputLayout.setHint(hint);
     }
 }
 

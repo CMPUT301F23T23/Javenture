@@ -3,39 +3,23 @@ package com.example.javenture;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.javenture.databinding.FragmentHouseholdItemsBinding;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.chip.Chip;
-import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class HouseHoldItemsFragment extends Fragment {
 
@@ -44,6 +28,7 @@ public class HouseHoldItemsFragment extends Fragment {
     private RecyclerView householdItemList;
     private HouseHoldItemsAdapter houseHoldItemsAdapter;
     private HouseHoldItemViewModel houseHoldItemViewModel;
+    private SortAndFilterViewModel sortAndFilterViewModel;
 
     @Override
     public View onCreateView(
@@ -76,7 +61,21 @@ public class HouseHoldItemsFragment extends Fragment {
         householdItemList.setLayoutManager(new LinearLayoutManager(this.getContext()));
         houseHoldItemViewModel = new ViewModelProvider(requireActivity()).get(HouseHoldItemViewModel.class);
 
-        houseHoldItemViewModel.observeItems();
+        sortAndFilterViewModel = new ViewModelProvider(requireActivity()).get(SortAndFilterViewModel.class);
+
+        houseHoldItemViewModel.observeItems(
+                sortAndFilterViewModel.getFilterType().getValue(),
+                sortAndFilterViewModel.getKeywords().getValue()
+        );
+
+        sortAndFilterViewModel.getFilterType().observe(getViewLifecycleOwner(), filterType -> {
+            ArrayList<String> filterKeywords = sortAndFilterViewModel.getKeywords().getValue();
+            houseHoldItemViewModel.observeItems(filterType, filterKeywords);
+        });
+        sortAndFilterViewModel.getKeywords().observe(getViewLifecycleOwner(), keywords -> {
+            String filterType = sortAndFilterViewModel.getFilterType().getValue();
+            houseHoldItemViewModel.observeItems(filterType, keywords);
+        });
 
         // Observe the LiveData, update the UI when the data changes
         houseHoldItemViewModel.getHouseHoldItems().observe(getViewLifecycleOwner(), houseHoldItems -> {
@@ -164,16 +163,21 @@ public class HouseHoldItemsFragment extends Fragment {
 
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
             LayoutInflater inflater = requireActivity().getLayoutInflater();
-            View dialogView = inflater.inflate(R.layout.dialog_tag_assign, null);
-            TagInputView tagInputView = dialogView.findViewById(R.id.tag_input_view);
+            View dialogView = inflater.inflate(R.layout.dialog_chips, null);
+            ChipInputView chipInputView = dialogView.findViewById(R.id.chip_input_view);
+            chipInputView.setHint("Tags");
             builder.setView(dialogView);
             builder.setTitle("Assign Tags");
 
             builder.setPositiveButton("Add", (dialog, which) -> {
                 houseHoldItemsAdapter.exitMultiSelectionMode();
 
-                List<Tag> tags = tagInputView.getTags();
-                int tagCount = tagInputView.getTagCount();
+                List<String> chipWords = chipInputView.getChipWords();
+                ArrayList<Tag> tags = new ArrayList<>();
+                for (String word : chipWords) {
+                    Tag tag = new Tag(word);
+                    tags.add(tag);
+                }
 
                 // assign unique tags to items
                 for (HouseHoldItem item : selectedItems) {

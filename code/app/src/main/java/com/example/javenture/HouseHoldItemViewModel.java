@@ -1,5 +1,6 @@
 package com.example.javenture;
 
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -22,8 +23,11 @@ public class HouseHoldItemViewModel extends ViewModel {
     /**
      * Observe changes to the items collection in the db
      */
-    public void observeItems() {
-        listenerRegistration = itemRepository.observeItems(items -> houseHoldItems.postValue(items));
+    public void observeItems(@Nullable String filterType, @Nullable ArrayList<String> keywords) {
+        if (listenerRegistration != null) {
+            stopObserveItems();
+        }
+        listenerRegistration = itemRepository.observeItems(items -> houseHoldItems.postValue(items), filterType, keywords);
     }
 
     /**

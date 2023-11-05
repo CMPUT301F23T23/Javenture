@@ -6,8 +6,8 @@
     android:padding="16dp"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <com.example.javenture.TagInputView
-        android:id="@+id/tag_input_view"
+    <com.example.javenture.ChipInputView
+        android:id="@+id/chip_input_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 

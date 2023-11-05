@@ -1,38 +1,26 @@
 package com.example.javenture;
 
-import android.content.Context;
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
 
 import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.javenture.databinding.FragmentAddHouseholdItemBinding;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.chip.Chip;
-import com.google.android.material.chip.ChipDrawable;
-import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.datepicker.MaterialDatePicker;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.firebase.firestore.DocumentReference;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Locale;
-import java.util.Set;
 
 public class AddHouseHoldItemFragment extends Fragment {
 
@@ -43,7 +31,7 @@ public class AddHouseHoldItemFragment extends Fragment {
     private TextInputEditText descriptionEditText;
     private TextInputEditText valueEditText;
     private TextInputEditText dateEditText;
-    private TagInputView tagInputView;
+    private ChipInputView chipInputView;
     private TextInputEditText commentEditText;
 
     private HouseHoldItemViewModel houseHoldItemViewModel;
@@ -62,7 +50,8 @@ public class AddHouseHoldItemFragment extends Fragment {
         descriptionEditText = binding.descriptionEditText;
         valueEditText = binding.valueEditText;
         dateEditText = binding.datePurchasedEditText;
-        tagInputView = binding.tagInputView;
+        chipInputView = binding.chipInputView;
+        chipInputView.setHint("Tags");
         commentEditText = binding.commentEditText;
 
         MainActivity mainActivity = (MainActivity) getActivity();
@@ -109,7 +98,11 @@ public class AddHouseHoldItemFragment extends Fragment {
             String description = descriptionEditText.getText().toString();
             String value = valueEditText.getText().toString();
             String date = dateEditText.getText().toString();
-            ArrayList<Tag> tags = tagInputView.getTags();
+            ArrayList<String> chipWords = chipInputView.getChipWords();
+            ArrayList<Tag> tags = new ArrayList<>();
+            for (String word : chipWords) {
+                tags.add(new Tag(word));
+            }
             String comment = commentEditText.getText().toString();
 
             if (make.isEmpty()) {
