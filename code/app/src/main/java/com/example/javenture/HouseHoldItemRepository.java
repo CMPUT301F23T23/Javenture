@@ -101,6 +101,12 @@ public class HouseHoldItemRepository {
         return filteredItemDocs;
     }
 
+    /**
+     * Sort documents by given sort type and option
+     * @param sortAndFilterOption sort and filter options
+     * @param itemDocs List of documents to be sorted
+     * @return List of sorted documents
+     */
     private List<DocumentSnapshot> sortDocuments(SortAndFilterOption sortAndFilterOption, List<DocumentSnapshot> itemDocs) {
         if (sortAndFilterOption.getSortType() == null || sortAndFilterOption.getSortOption() == null) {
             return itemDocs;
@@ -111,8 +117,8 @@ public class HouseHoldItemRepository {
                 sortedItemDocs = sortByDate(itemDocs, sortAndFilterOption.getSortOption());
                 break;
             case "description":
-//                sortedItemDocs = sortByDescription(itemDocs, sortOption);
-//                break;
+                sortedItemDocs = sortByDescription(itemDocs, sortAndFilterOption.getSortOption());
+                break;
             case "make":
 //                sortedItemDocs = sortByMake(itemDocs, sortOption);
 //                break;
@@ -126,20 +132,24 @@ public class HouseHoldItemRepository {
         return sortedItemDocs;
     }
 
-    private List<DocumentSnapshot> sortByDate(List<DocumentSnapshot> itemDocs, String sortOption) {
-        Comparator<DocumentSnapshot> comparator = new Comparator<DocumentSnapshot>() {
-            @Override
-            public int compare(DocumentSnapshot doc1, DocumentSnapshot doc2) {
-                LocalDate date1 = parseDate(doc1.getString("datePurchased"));
-                LocalDate date2 = parseDate(doc2.getString("datePurchased"));
+    /**
+     * Sort documents by description
+     * @param itemDocs List of documents to be sorted
+     * @param sortOption "ascending" or "descending"
+     * @return List of sorted documents
+     */
+    private List<DocumentSnapshot> sortByDescription(List<DocumentSnapshot> itemDocs, String sortOption) {
+        Comparator<DocumentSnapshot> comparator = (doc1, doc2) -> {
+            String description1 = doc1.getString("description");
+            String description2 = doc2.getString("description");
 
-                // null checks if necessary
-                if (date1 == null) return (date2 == null) ? 0 : -1;
-                if (date2 == null) return 1;
+            // null checks if necessary
+            if (description1 == null) return (description2 == null) ? 0 : -1;
+            if (description2 == null) return 1;
 
-                return date1.compareTo(date2); // Ascending
-            }
+            return description1.compareToIgnoreCase(description2); // Ascending
         };
+
         // Sort ascending or descending based on the sortOption
         if ("ascending".equalsIgnoreCase(sortOption)) {
             Collections.sort(itemDocs, comparator);
@@ -151,6 +161,40 @@ public class HouseHoldItemRepository {
         return itemDocs;
     }
 
+    /**
+     * Sort documents by date purchased
+     * @param itemDocs List of documents to be sorted
+     * @param sortOption "ascending" or "descending"
+     * @return List of sorted documents
+     */
+    private List<DocumentSnapshot> sortByDate(List<DocumentSnapshot> itemDocs, String sortOption) {
+        Comparator<DocumentSnapshot> comparator = (doc1, doc2) -> {
+            LocalDate date1 = parseDate(doc1.getString("datePurchased"));
+            LocalDate date2 = parseDate(doc2.getString("datePurchased"));
+
+            // null checks if necessary
+            if (date1 == null) return (date2 == null) ? 0 : -1;
+            if (date2 == null) return 1;
+
+            return date1.compareTo(date2); // Ascending
+        };
+
+        // Sort ascending or descending based on the sortOption
+        if ("ascending".equalsIgnoreCase(sortOption)) {
+            Collections.sort(itemDocs, comparator);
+        } else if ("descending".equalsIgnoreCase(sortOption)) {
+            Collections.sort(itemDocs, Collections.reverseOrder(comparator));
+        } else {
+            throw new IllegalArgumentException("Invalid sort option");
+        }
+        return itemDocs;
+    }
+
+    /**
+     * Sort documents by description
+     * @param dateString List of documents to be sorted
+     * @return List of sorted documents
+     */
     private LocalDate parseDate(String dateString) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.ENGLISH);
         try {
