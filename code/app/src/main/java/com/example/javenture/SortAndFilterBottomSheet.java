@@ -17,6 +17,7 @@ import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -101,6 +102,14 @@ public class SortAndFilterBottomSheet extends BottomSheetDialogFragment {
                 showTagsDialog();
             } else {
                 sortAndFilterOption.setTags(null);
+            }
+        });
+
+        filterByMakeChip.setOnClickListener(v -> {
+            if (filterByMakeChip.isChecked()) {
+                showMakeDialog();
+            } else {
+                sortAndFilterOption.setMakeKeyword(null);
             }
         });
 
@@ -282,6 +291,31 @@ public class SortAndFilterBottomSheet extends BottomSheetDialogFragment {
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
 
+    }
+
+    private void showMakeDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_input, null);
+        TextInputLayout makeInputView = dialogView.findViewById(R.id.text_input_layout);
+        makeInputView.setHint("Make");
+        builder.setView(dialogView);
+        builder.setTitle("Filter by make");
+
+        builder.setPositiveButton("Add", (dialog, which) -> {
+            String make = makeInputView.getEditText().getText().toString();
+            if (make.isEmpty()) {
+                makeInputView.setError("Make cannot be empty!");
+                return;
+            }
+            sortAndFilterOption.setMakeKeyword(make);
+        });
+        builder.setNegativeButton("Cancel", (dialog, which) -> {
+            sortAndFilterOption.setMakeKeyword(null);
+        });
+
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
     }
 
 }
