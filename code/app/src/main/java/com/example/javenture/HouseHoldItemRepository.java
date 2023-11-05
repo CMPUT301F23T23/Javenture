@@ -101,6 +101,9 @@ public class HouseHoldItemRepository {
             case "tags":
                 filteredItemDocs = filterByTags(itemDocs, sortAndFilterOption.getTags());
                 break;
+            case "make":
+                filteredItemDocs = filterByMake(itemDocs, sortAndFilterOption.getMakeKeyword());
+                break;
         }
         return filteredItemDocs;
     }
@@ -313,6 +316,31 @@ public class HouseHoldItemRepository {
                     }
                 }
                 if (containsAllKeywords) {
+                    filteredItemDocs.add(itemDoc);
+                }
+            }
+        }
+        return filteredItemDocs;
+    }
+
+    /**
+     * Filter documents by make
+     * If a document's make contains the make keyword, it will be included in the filtered list.
+     * Ignore case when comparing make keyword and make.
+     *
+     * @param itemDocs List of documents to be filtered
+     * @param makeKeyword make keyword to filter by
+     * @return
+     */
+    private List<DocumentSnapshot> filterByMake(List<DocumentSnapshot> itemDocs, @Nullable String makeKeyword) {
+        List<DocumentSnapshot> filteredItemDocs = new ArrayList<>();
+        if (makeKeyword == null) {
+            return filteredItemDocs;
+        }
+        for (DocumentSnapshot itemDoc : itemDocs) {
+            String make = itemDoc.getString("make");
+            if (make != null) {
+                if (make.compareToIgnoreCase(makeKeyword) == 0) {
                     filteredItemDocs.add(itemDoc);
                 }
             }
