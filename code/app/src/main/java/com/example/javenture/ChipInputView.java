@@ -95,6 +95,9 @@ public class ChipInputView extends ConstraintLayout {
             public void afterTextChanged(Editable editable) {
                 String text = editable.toString();
                 if (!text.isEmpty() && (text.endsWith(",") || text.endsWith(" ") || text.endsWith("\n"))) {
+                    if (text.trim().length() == 0) {
+                        return;
+                    }
                     addNewChip(text.substring(0, text.length() - 1));
                     editable.clear();
                 }

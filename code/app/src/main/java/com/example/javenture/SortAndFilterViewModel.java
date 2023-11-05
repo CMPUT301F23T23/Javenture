@@ -7,36 +7,13 @@ import androidx.lifecycle.ViewModel;
 import java.util.ArrayList;
 
 public class SortAndFilterViewModel extends ViewModel {
-    private MutableLiveData<String> sortType = new MutableLiveData<>();
-    private MutableLiveData<String> sortOption = new MutableLiveData<>();
-    private MutableLiveData<String> filterType = new MutableLiveData<>();
-    private MutableLiveData<ArrayList<String>> keywords = new MutableLiveData<>();
+    private final MutableLiveData<SortAndFilterOption> sortAndFilterOption = new MutableLiveData<>(new SortAndFilterOption());
 
-    public LiveData<String> getSortType() {
-        return sortType;
-    }
-    public LiveData<String> getSortOption() {
-        return sortOption;
-    }
-    public LiveData<String> getFilterType() {
-        return filterType;
+    public LiveData<SortAndFilterOption> getSortAndFilterOption() {
+        return sortAndFilterOption;
     }
 
-    public void setKeywords(ArrayList<String> keywords) {
-        this.keywords.postValue(keywords);
-    }
-
-    public void setSortType(String sortType) {
-        this.sortType.postValue(sortType);
-    }
-    public void setSortOption(String sortOption) {
-        this.sortOption.postValue(sortOption);
-    }
-    public void setFilterType(String filterType) {
-        this.filterType.postValue(filterType);
-    }
-
-    public LiveData<ArrayList<String>> getKeywords() {
-        return keywords;
+    public void setSortAndFilterOption(SortAndFilterOption sortAndFilterOption) {
+        this.sortAndFilterOption.postValue(sortAndFilterOption);
     }
 }

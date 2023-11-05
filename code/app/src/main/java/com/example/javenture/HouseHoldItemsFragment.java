@@ -63,18 +63,10 @@ public class HouseHoldItemsFragment extends Fragment {
 
         sortAndFilterViewModel = new ViewModelProvider(requireActivity()).get(SortAndFilterViewModel.class);
 
-        houseHoldItemViewModel.observeItems(
-                sortAndFilterViewModel.getFilterType().getValue(),
-                sortAndFilterViewModel.getKeywords().getValue()
-        );
+        houseHoldItemViewModel.observeItems(sortAndFilterViewModel.getSortAndFilterOption().getValue());
 
-        sortAndFilterViewModel.getFilterType().observe(getViewLifecycleOwner(), filterType -> {
-            ArrayList<String> filterKeywords = sortAndFilterViewModel.getKeywords().getValue();
-            houseHoldItemViewModel.observeItems(filterType, filterKeywords);
-        });
-        sortAndFilterViewModel.getKeywords().observe(getViewLifecycleOwner(), keywords -> {
-            String filterType = sortAndFilterViewModel.getFilterType().getValue();
-            houseHoldItemViewModel.observeItems(filterType, keywords);
+        sortAndFilterViewModel.getSortAndFilterOption().observe(getViewLifecycleOwner(), sortAndFilterOption -> {
+            houseHoldItemViewModel.observeItems(sortAndFilterOption);
         });
 
         // Observe the LiveData, update the UI when the data changes

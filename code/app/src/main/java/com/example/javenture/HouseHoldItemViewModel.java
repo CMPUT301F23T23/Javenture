@@ -23,11 +23,11 @@ public class HouseHoldItemViewModel extends ViewModel {
     /**
      * Observe changes to the items collection in the db
      */
-    public void observeItems(@Nullable String filterType, @Nullable ArrayList<String> keywords) {
+    public void observeItems(SortAndFilterOption sortAndFilterOption) {
         if (listenerRegistration != null) {
             stopObserveItems();
         }
-        listenerRegistration = itemRepository.observeItems(items -> houseHoldItems.postValue(items), filterType, keywords);
+        listenerRegistration = itemRepository.observeItems(items -> houseHoldItems.postValue(items), sortAndFilterOption);
     }
 
     /**

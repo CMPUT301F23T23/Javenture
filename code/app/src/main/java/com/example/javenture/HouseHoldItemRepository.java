@@ -25,9 +25,15 @@ import com.google.firebase.firestore.WriteBatch;
 
 import org.w3c.dom.Document;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -50,8 +56,9 @@ public class HouseHoldItemRepository {
     /**
      * Observe changes to the items collection in the db
      * @param listener listener to be called when the items collection changes
+     * @param sortAndFilterOption sort and filter options
      */
-    public ListenerRegistration observeItems(OnItemsFetchedListener listener, @Nullable String filterType, @Nullable ArrayList<String> keywords) {
+    public ListenerRegistration observeItems(OnItemsFetchedListener listener, SortAndFilterOption sortAndFilterOption) {
         final CollectionReference itemsRef = db.collection("users").document(user.getUid()).collection("items");
         return itemsRef.addSnapshotListener((value, error) -> {
                     if (error != null) {
@@ -59,7 +66,8 @@ public class HouseHoldItemRepository {
                         listener.onItemsFetched(new ArrayList<>());
                         return;
                     }
-                    List<DocumentSnapshot> filteredDocuments = filterDocuments(filterType, keywords, value.getDocuments());
+                    List<DocumentSnapshot> filteredDocuments = filterDocuments(sortAndFilterOption, value.getDocuments());
+                    List<DocumentSnapshot> sortedDocuments = sortDocuments(sortAndFilterOption, filteredDocuments);
                     ArrayList<HouseHoldItem> items = new ArrayList<>();
                     for (DocumentSnapshot document : filteredDocuments) {
                         HouseHoldItem item = feedDataToItem(document);
@@ -73,27 +81,83 @@ public class HouseHoldItemRepository {
 
     /**
      * Filter documents by given filter type and keywords
-     * @param filterType String representing the filter type
-     * @param keywords List of keywords to filter by
+     * @param sortAndFilterOption sort and filter options
      * @param itemDocs List of documents to be filtered
      * @return List of filtered documents
      */
-    private List<DocumentSnapshot> filterDocuments(@Nullable String filterType, @Nullable ArrayList<String> keywords, List<DocumentSnapshot> itemDocs) {
-        if (filterType == null) {
+    private List<DocumentSnapshot> filterDocuments(SortAndFilterOption sortAndFilterOption, List<DocumentSnapshot> itemDocs) {
+        if (sortAndFilterOption.getFilterType() == null) {
             return itemDocs;
         }
         List<DocumentSnapshot> filteredItemDocs = new ArrayList<>();
-        Log.d("db", "filterType: " + filterType);
-        Log.d("db", "keywords: " + keywords);
-        switch (filterType) {
+        switch (sortAndFilterOption.getFilterType()) {
             case "tags":
 //                filteredItemDocs = filterByTags(itemDocs, keywords);
                 break;
             case "description_keywords":
-                filteredItemDocs = filterByDescriptionsKeywords(itemDocs, keywords);
+                filteredItemDocs = filterByDescriptionsKeywords(itemDocs, sortAndFilterOption.getDescriptionKeywords());
                 break;
         }
         return filteredItemDocs;
+    }
+
+    private List<DocumentSnapshot> sortDocuments(SortAndFilterOption sortAndFilterOption, List<DocumentSnapshot> itemDocs) {
+        if (sortAndFilterOption.getSortType() == null || sortAndFilterOption.getSortOption() == null) {
+            return itemDocs;
+        }
+        List<DocumentSnapshot> sortedItemDocs = new ArrayList<>();
+        switch (sortAndFilterOption.getSortType()) {
+            case "date":
+                sortedItemDocs = sortByDate(itemDocs, sortAndFilterOption.getSortOption());
+                break;
+            case "description":
+//                sortedItemDocs = sortByDescription(itemDocs, sortOption);
+//                break;
+            case "make":
+//                sortedItemDocs = sortByMake(itemDocs, sortOption);
+//                break;
+            case "value":
+//                sortedItemDocs = sortByValue(itemDocs, sortOption);
+//                break;
+            case "tags":
+//                sortedItemDocs = sortByTags(itemDocs, sortOption);
+//                break;
+        }
+        return sortedItemDocs;
+    }
+
+    private List<DocumentSnapshot> sortByDate(List<DocumentSnapshot> itemDocs, String sortOption) {
+        Comparator<DocumentSnapshot> comparator = new Comparator<DocumentSnapshot>() {
+            @Override
+            public int compare(DocumentSnapshot doc1, DocumentSnapshot doc2) {
+                LocalDate date1 = parseDate(doc1.getString("datePurchased"));
+                LocalDate date2 = parseDate(doc2.getString("datePurchased"));
+
+                // null checks if necessary
+                if (date1 == null) return (date2 == null) ? 0 : -1;
+                if (date2 == null) return 1;
+
+                return date1.compareTo(date2); // Ascending
+            }
+        };
+        // Sort ascending or descending based on the sortOption
+        if ("ascending".equalsIgnoreCase(sortOption)) {
+            Collections.sort(itemDocs, comparator);
+        } else if ("descending".equalsIgnoreCase(sortOption)) {
+            Collections.sort(itemDocs, Collections.reverseOrder(comparator));
+        } else {
+            throw new IllegalArgumentException("Invalid sort option");
+        }
+        return itemDocs;
+    }
+
+    private LocalDate parseDate(String dateString) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.ENGLISH);
+        try {
+            return LocalDate.parse(dateString, formatter);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("Invalid date format", e);
+        }
     }
 
     /**

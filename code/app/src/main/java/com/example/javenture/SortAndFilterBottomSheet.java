@@ -2,7 +2,6 @@ package com.example.javenture;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,12 +38,8 @@ public class SortAndFilterBottomSheet extends BottomSheetDialogFragment {
     private ChipGroup sortOptionChipGroup;
     private ChipGroup filterByChipGroup;
 
-    private String sortType = null;
-    private String sortOption = null;
-    private String filterType = null;
-    private ArrayList<String> keywords = null;
-
     private SortAndFilterViewModel sortAndFilterViewModel;
+    private SortAndFilterOption sortAndFilterOption;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -71,6 +66,7 @@ public class SortAndFilterBottomSheet extends BottomSheetDialogFragment {
         filterByChipGroup = view.findViewById(R.id.chipGroup_filter);
 
         sortAndFilterViewModel = new ViewModelProvider(requireActivity()).get(SortAndFilterViewModel.class);
+        sortAndFilterOption = sortAndFilterViewModel.getSortAndFilterOption().getValue();
 
         return view;
     }
@@ -84,14 +80,14 @@ public class SortAndFilterBottomSheet extends BottomSheetDialogFragment {
             if (filterByDescriptionKeywordsChip.isChecked()) {
                 showChipInputLayoutDialog("Filter by description keywords", "Keywords");
             } else {
-                keywords = null;
+                sortAndFilterOption.setDescriptionKeywords(null);
             }
         });
 
         resetButton.setOnClickListener(v -> {
-            sortType = null;
-            sortOption = null;
-            filterType = null;
+            sortAndFilterOption.setSortType(null);
+            sortAndFilterOption.setSortOption(null);
+            sortAndFilterOption.setFilterType(null);
             sortByChipGroup.clearCheck();
             sortOptionChipGroup.clearCheck();
             filterByChipGroup.clearCheck();
@@ -100,55 +96,51 @@ public class SortAndFilterBottomSheet extends BottomSheetDialogFragment {
         applyButton.setOnClickListener(v -> {
             int checkedChipId = sortByChipGroup.getCheckedChipId();
             if (checkedChipId == view.findViewById(R.id.chip_sort_date).getId()) {
-                sortType = "date";
+                sortAndFilterOption.setSortType("date");
             } else if (checkedChipId == view.findViewById(R.id.chip_sort_description).getId()) {
-                sortType = "description";
+                sortAndFilterOption.setSortType("description");
             } else if (checkedChipId == view.findViewById(R.id.chip_sort_make).getId()) {
-                sortType = "make";
+                sortAndFilterOption.setSortType("make");
             } else if (checkedChipId == view.findViewById(R.id.chip_sort_value).getId()) {
-                sortType = "value";
+                sortAndFilterOption.setSortType("value");
             } else if (checkedChipId == view.findViewById(R.id.chip_sort_tags).getId()) {
-                sortType = "tags";
+                sortAndFilterOption.setSortType("tags");
             } else {
-                sortType = null;
+                sortAndFilterOption.setSortType(null);
             }
 
 
             checkedChipId = sortOptionChipGroup.getCheckedChipId();
             if (checkedChipId == view.findViewById(R.id.chip_ascending).getId()) {
-                sortOption = "ascending";
+                sortAndFilterOption.setSortOption("ascending");
             } else if (checkedChipId == view.findViewById(R.id.chip_descending).getId()) {
-                sortOption = "descending";
+                sortAndFilterOption.setSortOption("descending");
             } else {
-                sortOption = null;
+                sortAndFilterOption.setSortOption(null);
             }
 
             checkedChipId = filterByChipGroup.getCheckedChipId();
             if (checkedChipId == view.findViewById(R.id.chip_filter_date_range).getId()) {
-                filterType = "date_range";
+                sortAndFilterOption.setFilterType("date_range");
             } else if (checkedChipId == view.findViewById(R.id.chip_filter_description_keywords).getId()) {
-                filterType = "description_keywords";
+                sortAndFilterOption.setFilterType("description_keywords");
             } else if (checkedChipId == view.findViewById(R.id.chip_filter_make).getId()) {
-                filterType = "make";
+                sortAndFilterOption.setFilterType("make");
             } else if (checkedChipId == view.findViewById(R.id.chip_filter_tags).getId()) {
-                filterType = "tags";
+                sortAndFilterOption.setFilterType("tags");
             } else {
-                filterType = null;
+                sortAndFilterOption.setFilterType(null);
             }
 
-            if (sortType == null && sortOption != null) {
+            if (sortAndFilterOption.getSortType() == null && sortAndFilterOption.getSortOption() != null) {
                 Snackbar.make(view, "Please select a sort type", Snackbar.LENGTH_SHORT).show();
                 return;
-            } else if (sortType != null && sortOption == null) {
+            } else if (sortAndFilterOption.getSortType() != null && sortAndFilterOption.getSortOption() == null) {
                 Snackbar.make(view, "Please select a sort option", Snackbar.LENGTH_SHORT).show();
                 return;
             }
 
-            sortAndFilterViewModel.setSortType(sortType);
-            sortAndFilterViewModel.setSortOption(sortOption);
-            sortAndFilterViewModel.setFilterType(filterType);
-            sortAndFilterViewModel.setKeywords(keywords);
-            Log.d("SortAndFilterBottomSheet", "keywords" + keywords);
+            sortAndFilterViewModel.setSortAndFilterOption(sortAndFilterOption);
 
             dismiss();
         });
@@ -158,9 +150,9 @@ public class SortAndFilterBottomSheet extends BottomSheetDialogFragment {
      * Update the UI based on the selected sort type, sort option, and filter type
      */
     private void updateUI() {
-        sortOption = sortAndFilterViewModel.getSortOption().getValue();
-        sortType = sortAndFilterViewModel.getSortType().getValue();
-        filterType = sortAndFilterViewModel.getFilterType().getValue();
+        String sortOption = sortAndFilterOption.getSortOption();
+        String sortType = sortAndFilterOption.getSortType();
+        String filterType = sortAndFilterOption.getFilterType();
 
         if (sortType != null) {
             if (sortType.equals("date")) {
@@ -211,10 +203,10 @@ public class SortAndFilterBottomSheet extends BottomSheetDialogFragment {
         builder.setTitle(title);
 
         builder.setPositiveButton("Add", (dialog, which) -> {
-            keywords = chipInputView.getChipWords();
+            sortAndFilterOption.setDescriptionKeywords(chipInputView.getChipWords());
         });
         builder.setNegativeButton("Cancel", (dialog, which) -> {
-            keywords = null;
+            sortAndFilterOption.setDescriptionKeywords(null);
         });
 
         AlertDialog alertDialog = builder.create();
