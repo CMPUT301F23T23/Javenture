@@ -96,6 +96,14 @@ public class SortAndFilterBottomSheet extends BottomSheetDialogFragment {
             }
         });
 
+        filterByTagsChip.setOnClickListener(v -> {
+            if (filterByTagsChip.isChecked()) {
+                showTagsDialog();
+            } else {
+                sortAndFilterOption.setTags(null);
+            }
+        });
+
 
 
         resetButton.setOnClickListener(v -> {
@@ -177,7 +185,7 @@ public class SortAndFilterBottomSheet extends BottomSheetDialogFragment {
                 sortByMakeChip.setChecked(true);
             } else if (sortType.equals("value")) {
                 sortByValueChip.setChecked(true);
-            } else if (sortType.equals("tag")) {
+            } else if (sortType.equals("tags")) {
                 sortByTagsChip.setChecked(true);
             }
         }
@@ -195,7 +203,7 @@ public class SortAndFilterBottomSheet extends BottomSheetDialogFragment {
                 filterByDescriptionKeywordsChip.setChecked(true);
             } else if (filterType.equals("make")) {
                 filterByMakeChip.setChecked(true);
-            } else if (filterType.equals("tag")) {
+            } else if (filterType.equals("tags")) {
                 filterByTagsChip.setChecked(true);
             }
         }
@@ -224,6 +232,9 @@ public class SortAndFilterBottomSheet extends BottomSheetDialogFragment {
         alertDialog.show();
     }
 
+    /**
+     * Show a dialog to get the date range for filtering by date range
+     */
     private void showDateRangeDialog() {
         MaterialDatePicker.Builder<Pair<Long, Long>> builder = MaterialDatePicker.Builder.dateRangePicker();
         builder.setTitleText("Filter by date range");
@@ -247,6 +258,30 @@ public class SortAndFilterBottomSheet extends BottomSheetDialogFragment {
         });
 
         picker.show(getParentFragmentManager(), "DATE_RANGE_PICKER");
+    }
+
+    /**
+     * Show a dialog to get the tags for filtering by tags
+     */
+    private void showTagsDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_chips, null);
+        ChipInputView chipInputView = dialogView.findViewById(R.id.chip_input_view);
+        chipInputView.setHint("Tags");
+        builder.setView(dialogView);
+        builder.setTitle("Filter by tags");
+
+        builder.setPositiveButton("Add", (dialog, which) -> {
+            sortAndFilterOption.setTags(chipInputView.getChipWords());
+        });
+        builder.setNegativeButton("Cancel", (dialog, which) -> {
+            sortAndFilterOption.setTags(null);
+        });
+
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+
     }
 
 }

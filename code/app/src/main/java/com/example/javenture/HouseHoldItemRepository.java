@@ -67,10 +67,10 @@ public class HouseHoldItemRepository {
                         listener.onItemsFetched(new ArrayList<>());
                         return;
                     }
-                    List<DocumentSnapshot> filteredDocuments = filterDocuments(sortAndFilterOption, value.getDocuments());
-                    List<DocumentSnapshot> sortedDocuments = sortDocuments(sortAndFilterOption, filteredDocuments);
+                    List<DocumentSnapshot> itemsDoc = filterDocuments(sortAndFilterOption, value.getDocuments());
+                    itemsDoc = sortDocuments(sortAndFilterOption, itemsDoc);
                     ArrayList<HouseHoldItem> items = new ArrayList<>();
-                    for (DocumentSnapshot document : filteredDocuments) {
+                    for (DocumentSnapshot document : itemsDoc) {
                         HouseHoldItem item = feedDataToItem(document);
                         items.add(item);
                     }
@@ -92,14 +92,14 @@ public class HouseHoldItemRepository {
         }
         List<DocumentSnapshot> filteredItemDocs = new ArrayList<>();
         switch (sortAndFilterOption.getFilterType()) {
-            case "tags":
-//                filteredItemDocs = filterByTags(itemDocs, keywords);
-                break;
             case "description_keywords":
                 filteredItemDocs = filterByDescriptionsKeywords(itemDocs, sortAndFilterOption.getDescriptionKeywords());
                 break;
             case "date_range":
                 filteredItemDocs = filterByDateRange(itemDocs, sortAndFilterOption.getDateRange());
+                break;
+            case "tags":
+                filteredItemDocs = filterByTags(itemDocs, sortAndFilterOption.getTags());
                 break;
         }
         return filteredItemDocs;
@@ -318,6 +318,41 @@ public class HouseHoldItemRepository {
             }
         }
         return filteredItemDocs;
+    }
+
+    /**
+     * Filter documents by tags.
+     * If a document's tags contains all of the tags, it will be included in the filtered list.
+     * @param itemDocs List of documents to be filtered
+     * @param filterTags List of tags to filter by
+     * @return List of filtered documents
+     */
+    private List<DocumentSnapshot> filterByTags(List<DocumentSnapshot> itemDocs, @Nullable ArrayList<String> filterTags) {
+        List<DocumentSnapshot> filteredItemDocs = new ArrayList<>();
+        if (filterTags == null) {
+            return filteredItemDocs;
+        }
+        for (DocumentSnapshot itemDoc : itemDocs) {
+            List<String> tags = (List<String>) itemDoc.get("tags");
+            if (tags != null) {
+                HashSet<String> tagSet = new HashSet<>();
+                for (String tag : tags) {
+                    tagSet.add(tag.toLowerCase());
+                }
+                boolean containsAllTags = true;
+                for (String t : filterTags) {
+                    if (!tagSet.contains(t.toLowerCase())) {
+                        containsAllTags = false;
+                        break;
+                    }
+                }
+                if (containsAllTags) {
+                    filteredItemDocs.add(itemDoc);
+                }
+            }
+        }
+        return filteredItemDocs;
+
     }
 
 
