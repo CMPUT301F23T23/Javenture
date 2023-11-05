@@ -1,5 +1,8 @@
 package com.example.javenture;
 
+import androidx.core.util.Pair;
+
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class SortAndFilterOption {
@@ -10,6 +13,8 @@ public class SortAndFilterOption {
     private String makeKeyword;
     private ArrayList<String> tags;
 
+    private Pair<LocalDate, LocalDate> dateRange;
+
     public SortAndFilterOption() {
         this.sortType = null;
         this.sortOption = null;
@@ -17,6 +22,7 @@ public class SortAndFilterOption {
         this.descriptionKeywords = null;
         this.makeKeyword = null;
         this.tags = null;
+        this.dateRange = null;
     }
 
     public String getSortType() {
@@ -66,4 +72,13 @@ public class SortAndFilterOption {
     public void setTags(ArrayList<String> tags) {
         this.tags = tags;
     }
+
+    public Pair<LocalDate, LocalDate> getDateRange() {
+        return dateRange;
+    }
+
+    public void setDateRange(Pair<LocalDate, LocalDate> dateRange) {
+        this.dateRange = dateRange;
+    }
+
 }

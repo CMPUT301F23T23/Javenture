@@ -9,14 +9,18 @@ import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.util.Pair;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.util.ArrayList;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 
 public class SortAndFilterBottomSheet extends BottomSheetDialogFragment {
 
@@ -78,11 +82,21 @@ public class SortAndFilterBottomSheet extends BottomSheetDialogFragment {
 
         filterByDescriptionKeywordsChip.setOnClickListener(v -> {
             if (filterByDescriptionKeywordsChip.isChecked()) {
-                showChipInputLayoutDialog("Filter by description keywords", "Keywords");
+                showDescriptionKeywordsDialog();
             } else {
                 sortAndFilterOption.setDescriptionKeywords(null);
             }
         });
+
+        filterByDateRangeChip.setOnClickListener(v -> {
+            if (filterByDateRangeChip.isChecked()) {
+                showDateRangeDialog();
+            } else {
+                sortAndFilterOption.setDateRange(null);
+            }
+        });
+
+
 
         resetButton.setOnClickListener(v -> {
             sortAndFilterOption.setSortType(null);
@@ -188,19 +202,16 @@ public class SortAndFilterBottomSheet extends BottomSheetDialogFragment {
     }
 
     /**
-     * Show a dialog to get the keywords for filtering by description and by tags
-     *
-     * @param title title of the dialog
-     * @param hint hint for the input field
+     * Show a dialog to get the keywords for filtering by description
      */
-    private void showChipInputLayoutDialog(String title, String hint) {
+    private void showDescriptionKeywordsDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         LayoutInflater inflater = requireActivity().getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.dialog_chips, null);
         ChipInputView chipInputView = dialogView.findViewById(R.id.chip_input_view);
-        chipInputView.setHint(hint);
+        chipInputView.setHint("Keywords");
         builder.setView(dialogView);
-        builder.setTitle(title);
+        builder.setTitle("Filter by description keywords");
 
         builder.setPositiveButton("Add", (dialog, which) -> {
             sortAndFilterOption.setDescriptionKeywords(chipInputView.getChipWords());
@@ -211,6 +222,31 @@ public class SortAndFilterBottomSheet extends BottomSheetDialogFragment {
 
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
+    }
+
+    private void showDateRangeDialog() {
+        MaterialDatePicker.Builder<Pair<Long, Long>> builder = MaterialDatePicker.Builder.dateRangePicker();
+        builder.setTitleText("Filter by date range");
+        final MaterialDatePicker<Pair<Long, Long>> picker = builder.build();
+
+        picker.addOnPositiveButtonClickListener(selection -> {
+            // Here selection.first is the start date and selection.second is the end date
+            LocalDate startDate = Instant.ofEpochMilli(selection.first).atZone(ZoneId.of("UTC")).toLocalDate();
+            LocalDate endDate = Instant.ofEpochMilli(selection.second).atZone(ZoneId.of("UTC")).toLocalDate();
+            Pair<LocalDate, LocalDate> dateRange = new Pair<>(startDate, endDate);
+
+            sortAndFilterOption.setDateRange(dateRange);
+        });
+
+        picker.addOnNegativeButtonClickListener(dialog -> {
+            sortAndFilterOption.setDateRange(null);
+        });
+
+        picker.addOnCancelListener(dialog -> {
+            sortAndFilterOption.setDateRange(null);
+        });
+
+        picker.show(getParentFragmentManager(), "DATE_RANGE_PICKER");
     }
 
 }
