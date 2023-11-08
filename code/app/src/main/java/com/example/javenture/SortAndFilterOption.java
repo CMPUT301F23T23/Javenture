@@ -5,6 +5,9 @@ import androidx.core.util.Pair;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
+/**
+ * This class is used to store the sort and filter options that the user has selected.
+ */
 public class SortAndFilterOption {
     private String sortType;
     private String sortOption;

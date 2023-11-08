@@ -19,6 +19,9 @@ import com.google.android.material.textfield.TextInputLayout;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class is an UI component that allows Chips to be inside InputTextLayout.
+ */
 public class ChipInputView extends ConstraintLayout {
 
     private ChipGroup chipGroup;
@@ -36,6 +39,11 @@ public class ChipInputView extends ConstraintLayout {
         init(context, attrs);
     }
 
+    /**
+     * Initialize the ChipInputView
+     * @param context context
+     * @param attrs attributes
+     */
     private void init(Context context, AttributeSet attrs) {
         LayoutInflater.from(context).inflate(R.layout.chip_input_layout, this, true);
 
@@ -105,6 +113,10 @@ public class ChipInputView extends ConstraintLayout {
         });
     }
 
+    /**
+     * Add a new Chip to the ChipInputView
+     * @param text text of the Chip
+     */
     private void addNewChip(String text) {
         if (isWordDuplicate(text)) {
             return;

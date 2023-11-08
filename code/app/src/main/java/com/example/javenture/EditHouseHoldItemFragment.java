@@ -177,5 +177,6 @@ public class EditHouseHoldItemFragment extends Fragment {
         valueEditText.setText(String.format("%.2f", item.getPrice()));
         dateEditText.setText(item.getFormattedDatePurchased());
         chipInputView.addChipsToChipGroup(item.getTags());
+        commentEditText.setText(item.getComment());
     }
 }

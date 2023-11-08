@@ -1,6 +1,7 @@
 package com.example.javenture;
 
 import androidx.annotation.Nullable;
+import androidx.core.util.Pair;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -9,8 +10,14 @@ import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
+/**
+ * This class is used to store the HouseHoldItem objects.
+ * It will call the HouseHoldItemRepository to perform CRUD operations on the db.
+ * It observes changes to the items collection in the db.
+ */
 public class HouseHoldItemViewModel extends ViewModel {
     private HouseHoldItemRepository itemRepository = new HouseHoldItemRepository();
     private final MutableLiveData<ArrayList<HouseHoldItem>> houseHoldItems = new MutableLiveData<>(new ArrayList<>());
@@ -51,10 +58,10 @@ public class HouseHoldItemViewModel extends ViewModel {
 
     /**
      * Add an HouseHoldItem object to the list of houseHoldItems
-     * @param houseHoldItem HouseHoldItem object to be added
+     * @param item HouseHoldItem object to be added
      */
-    public void addItem(HouseHoldItem houseHoldItem) {
-        itemRepository.addItem(houseHoldItem);
+    public void addItem(HouseHoldItem item) {
+        itemRepository.addItem(item.toMap());
     }
 
     /**
@@ -62,7 +69,7 @@ public class HouseHoldItemViewModel extends ViewModel {
      * @param item HouseHoldItem object to be removed
      */
     public void deleteItem(HouseHoldItem item) {
-        itemRepository.deleteItem(item);
+        itemRepository.deleteItem(item.getId());
     }
 
     /**
@@ -70,7 +77,11 @@ public class HouseHoldItemViewModel extends ViewModel {
      * @param items list of HouseHoldItem objects to be removed
      */
     public void deleteItems(List<HouseHoldItem> items) {
-        itemRepository.deleteItems(items);
+        List<String> ids = new ArrayList<>();
+        for (HouseHoldItem item : items) {
+            ids.add(item.getId());
+        }
+        itemRepository.deleteItems(ids);
     }
 
     /**
@@ -79,7 +90,7 @@ public class HouseHoldItemViewModel extends ViewModel {
      * @param item HouseHoldItem object with updated values
      */
     public void editItem(HouseHoldItem item) {
-        itemRepository.editItem(item);
+        itemRepository.editItem(item.getId(), item.toMap());
     }
 
     /**
@@ -88,7 +99,11 @@ public class HouseHoldItemViewModel extends ViewModel {
      * @param items list of HouseHoldItem objects with updated values
      */
     public void editItems(List<HouseHoldItem> items) {
-        itemRepository.editItems(items);
+        List<Pair<String, Map<String, Object>>> itemMaps = new ArrayList<>();
+        for (HouseHoldItem item : items) {
+            itemMaps.add(new Pair<>(item.getId(), item.toMap()));
+        }
+        itemRepository.editItems(itemMaps);
     }
 
     /**

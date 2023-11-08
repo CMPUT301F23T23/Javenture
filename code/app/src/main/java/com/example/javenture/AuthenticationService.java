@@ -15,6 +15,9 @@ import com.google.firebase.firestore.auth.User;
 
 import java.util.HashMap;
 
+/**
+ * Handles authentication with Firebase
+ */
 public class AuthenticationService {
 
     private FirebaseAuth mAuth;
@@ -25,7 +28,15 @@ public class AuthenticationService {
         db = FirebaseFirestore.getInstance();
     }
 
-    public void signInAnonymously(OnSignInListener onSignInListener) {
+    /**
+     * Signs in anonymously
+     * @param listener callback for when sign in is successful or failed
+     */
+    public void signInAnonymously(OnSignInListener listener) {
+        if (mAuth.getCurrentUser() != null) {
+            listener.onSignIn();
+            return;
+        }
         mAuth.signInAnonymously()
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
@@ -39,15 +50,15 @@ public class AuthenticationService {
                                     .set(new HashMap<>())
                                     .addOnSuccessListener(unused -> {
                                         Log.d("auth", "user created in db");
-                                        onSignInListener.onSignIn();
+                                        listener.onSignIn();
                                     }).addOnFailureListener(e -> {
                                         Log.d("auth", "user creation failed");
-                                        onSignInListener.onSignInFailed();
+                                        listener.onSignInFailed();
                                     });
 
                         } else {
                             Log.w("auth", "signInAnonymously:failure", task.getException());
-                            onSignInListener.onSignInFailed();
+                            listener.onSignInFailed();
                         }
                     }
                 });
@@ -61,6 +72,9 @@ public class AuthenticationService {
         return mAuth.getCurrentUser();
     }
 
+    /**
+     * Interface for callbacks when sign in is successful or failed
+     */
     public interface OnSignInListener {
         void onSignIn();
         void onSignInFailed();

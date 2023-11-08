@@ -38,18 +38,23 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
+/**
+ * Handles interactions with the Firestore db
+ */
 public class HouseHoldItemRepository {
     private FirebaseFirestore db;
-    private FirebaseUser user;
     private AuthenticationService authService;
 
     public HouseHoldItemRepository() {
         db = FirebaseFirestore.getInstance();
         authService = new AuthenticationService();
-        user = authService.getCurrentUser();
     }
 
+    /**
+     * Listener for when items are fetched from the db
+     */
     public interface OnItemsFetchedListener {
         void onItemsFetched(ArrayList<HouseHoldItem> items);
     }
@@ -60,7 +65,10 @@ public class HouseHoldItemRepository {
      * @param sortAndFilterOption sort and filter options
      */
     public ListenerRegistration observeItems(OnItemsFetchedListener listener, SortAndFilterOption sortAndFilterOption) {
-        final CollectionReference itemsRef = db.collection("users").document(user.getUid()).collection("items");
+        if (authService.getCurrentUser() == null) {
+            return null;
+        }
+        final CollectionReference itemsRef = db.collection("users").document(authService.getCurrentUser().getUid()).collection("items");
         return itemsRef.addSnapshotListener((value, error) -> {
                     if (error != null) {
                         Log.w("db", "Listen failed.", error);
@@ -446,13 +454,13 @@ public class HouseHoldItemRepository {
      * Add an item to the db
      * @param item item to be added
      */
-    public void addItem(HouseHoldItem item) {
-        if (user == null) {
+    public void addItem(Map<String, Object> item) {
+        if (authService.getCurrentUser() == null) {
             return;
         }
-        CollectionReference itemsRef = db.collection("users").document(user.getUid()).collection("items");
+        CollectionReference itemsRef = db.collection("users").document(authService.getCurrentUser().getUid()).collection("items");
         // add item to db
-        itemsRef.add(item.toMap())
+        itemsRef.add(item)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
@@ -466,14 +474,15 @@ public class HouseHoldItemRepository {
 
     /**
      * Edit an item in the db
+     * @param id id of item to be edited
      * @param item target item with updated values
      */
-    public void editItem(HouseHoldItem item) {
-        if (user == null) {
+    public void editItem(String id, Map<String, Object> item) {
+        if (authService.getCurrentUser() == null) {
             return;
         }
-        DocumentReference docRef = db.collection("users").document(user.getUid()).collection("items").document(item.getId());
-        docRef.set(item.toMap(), SetOptions.merge())
+        DocumentReference docRef = db.collection("users").document(authService.getCurrentUser().getUid()).collection("items").document(id);
+        docRef.set(item, SetOptions.merge())
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {
@@ -487,13 +496,13 @@ public class HouseHoldItemRepository {
 
     /**
      * Delete an item from the db
-     * @param item item to be deleted
+     * @param id id of item to be deleted
      */
-    public void deleteItem(HouseHoldItem item) {
-        if (user == null) {
+    public void deleteItem(String id) {
+        if (authService.getCurrentUser() == null) {
             return;
         }
-        DocumentReference docRef = db.collection("users").document(user.getUid()).collection("items").document(item.getId());
+        DocumentReference docRef = db.collection("users").document(authService.getCurrentUser().getUid()).collection("items").document(id);
         docRef.delete()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -508,16 +517,16 @@ public class HouseHoldItemRepository {
 
     /**
      * Delete multiple items from the db
-     * @param items list of items to delete
+     * @param ids list of ids of items to be deleted
      */
-    public void deleteItems(List<HouseHoldItem> items) {
-        if (user == null) {
+    public void deleteItems(List<String> ids) {
+        if (authService.getCurrentUser() == null) {
             return;
         }
-        CollectionReference itemsRef = db.collection("users").document(user.getUid()).collection("items");
+        CollectionReference itemsRef = db.collection("users").document(authService.getCurrentUser().getUid()).collection("items");
         WriteBatch batch = db.batch();
-        for (HouseHoldItem item : items) {
-            batch.delete(itemsRef.document(item.getId()));
+        for (String id : ids) {
+            batch.delete(itemsRef.document(id));
         }
         batch.commit()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -536,16 +545,17 @@ public class HouseHoldItemRepository {
 
     /**
      * Edit multiple items in the db
-     * @param items list of items to edit
+     * @param items list of pairs of ids and target items with updated values
      */
-    public void editItems(List<HouseHoldItem> items) {
-        if (user == null) {
+    public void editItems(List<Pair<String, Map<String, Object>>> items) {
+        if (authService.getCurrentUser() == null) {
             return;
         }
-        CollectionReference itemsRef = db.collection("users").document(user.getUid()).collection("items");
+        CollectionReference itemsRef = db.collection("users").document(authService.getCurrentUser().getUid()).collection("items");
         WriteBatch batch = db.batch();
-        for (HouseHoldItem item : items) {
-            batch.set(itemsRef.document(item.getId()), item.toMap(), SetOptions.merge());
+        for (Pair<String, Map<String, Object>> item : items) {
+            String id = item.first;
+            batch.set(itemsRef.document(id), item.second, SetOptions.merge());
         }
         batch.commit()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {

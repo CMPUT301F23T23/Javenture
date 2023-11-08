@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Contains information about a household item
+ */
 public class HouseHoldItem implements Serializable {
     private String id;
     private String description;
@@ -37,6 +40,10 @@ public class HouseHoldItem implements Serializable {
         this.tags = tags;
     }
 
+    /**
+     * Convert the HouseHoldItem object to a map for storing in the db
+     * @return map of the HouseHoldItem object
+     */
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();
         map.put("description", description);

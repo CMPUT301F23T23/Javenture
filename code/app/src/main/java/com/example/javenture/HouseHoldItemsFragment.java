@@ -1,8 +1,11 @@
 package com.example.javenture;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +32,8 @@ public class HouseHoldItemsFragment extends Fragment {
     private HouseHoldItemsAdapter houseHoldItemsAdapter;
     private HouseHoldItemViewModel houseHoldItemViewModel;
     private SortAndFilterViewModel sortAndFilterViewModel;
+    private static boolean snackbarShownThisSession = false;
+
 
     @Override
     public View onCreateView(
@@ -39,41 +44,12 @@ public class HouseHoldItemsFragment extends Fragment {
         binding = FragmentHouseholdItemsBinding.inflate(inflater, container, false);
 
         authService = new AuthenticationService();
-        // TODO check if sign in works
-        if (authService.getCurrentUser() == null) {
-            authService.signInAnonymously(new AuthenticationService.OnSignInListener() {
-                @Override
-                public void onSignIn() {
-                    Snackbar.make(binding.getRoot(), "Signed in anonymously", Snackbar.LENGTH_LONG)
-                            .setAnchorView(binding.totalMonthlyChargeContainer)
-                            .setAction("Action", null).show();
-                }
-                @Override
-                public void onSignInFailed() {
-                    Snackbar.make(binding.getRoot(), "Sign in failed", Snackbar.LENGTH_LONG)
-                            .setAnchorView(binding.totalMonthlyChargeContainer)
-                            .setAction("Action", null).show();
-                }
-            });
-        }
 
         householdItemList = binding.householdItemList;
         householdItemList.setLayoutManager(new LinearLayoutManager(this.getContext()));
         houseHoldItemViewModel = new ViewModelProvider(requireActivity()).get(HouseHoldItemViewModel.class);
 
         sortAndFilterViewModel = new ViewModelProvider(requireActivity()).get(SortAndFilterViewModel.class);
-
-        houseHoldItemViewModel.observeItems(sortAndFilterViewModel.getSortAndFilterOption().getValue());
-
-        sortAndFilterViewModel.getSortAndFilterOption().observe(getViewLifecycleOwner(), sortAndFilterOption -> {
-            houseHoldItemViewModel.observeItems(sortAndFilterOption);
-        });
-
-        // Observe the LiveData, update the UI when the data changes
-        houseHoldItemViewModel.getHouseHoldItems().observe(getViewLifecycleOwner(), houseHoldItems -> {
-            houseHoldItemsAdapter.notifyDataSetChanged();
-            updateTotalEstimatedValue();
-        });
 
         houseHoldItemsAdapter = new HouseHoldItemsAdapter(this.getContext(), houseHoldItemViewModel);
         householdItemList.setAdapter(houseHoldItemsAdapter);
@@ -86,6 +62,40 @@ public class HouseHoldItemsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         NavController navController = NavHostFragment.findNavController(HouseHoldItemsFragment.this);
+
+        // TODO check if sign in works
+        authService.signInAnonymously(new AuthenticationService.OnSignInListener() {
+            @Override
+            public void onSignIn() {
+                // display Snackbar only once
+
+                if (!snackbarShownThisSession) {
+                    Snackbar.make(binding.getRoot(), "Signed in anonymously", Snackbar.LENGTH_SHORT)
+                            .setAnchorView(binding.totalMonthlyChargeContainer)
+                            .setAction("Action", null).show();
+                    snackbarShownThisSession = true;
+                }
+
+                houseHoldItemViewModel.observeItems(sortAndFilterViewModel.getSortAndFilterOption().getValue());
+
+                sortAndFilterViewModel.getSortAndFilterOption().observe(getViewLifecycleOwner(), sortAndFilterOption -> {
+                    houseHoldItemViewModel.observeItems(sortAndFilterOption);
+                });
+
+                // Observe the LiveData, update the UI when the data changes
+                houseHoldItemViewModel.getHouseHoldItems().observe(getViewLifecycleOwner(), houseHoldItems -> {
+                    houseHoldItemsAdapter.notifyDataSetChanged();
+                    updateTotalEstimatedValue();
+                });
+
+            }
+            @Override
+            public void onSignInFailed() {
+                Snackbar.make(binding.getRoot(), "Sign in failed", Snackbar.LENGTH_SHORT)
+                        .setAnchorView(binding.totalMonthlyChargeContainer)
+                        .setAction("Action", null).show();
+            }
+        });
 
         binding.addFab.setOnClickListener(v -> {
             navController.navigate(R.id.add_item_action);

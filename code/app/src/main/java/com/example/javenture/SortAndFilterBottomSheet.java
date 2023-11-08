@@ -23,6 +23,9 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 
+/**
+ * Class for the sort and filter bottom sheet
+ */
 public class SortAndFilterBottomSheet extends BottomSheetDialogFragment {
 
     private Button resetButton;
@@ -293,6 +296,9 @@ public class SortAndFilterBottomSheet extends BottomSheetDialogFragment {
 
     }
 
+    /**
+     * Show a dialog to get the make for filtering by make
+     */
     private void showMakeDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         LayoutInflater inflater = requireActivity().getLayoutInflater();

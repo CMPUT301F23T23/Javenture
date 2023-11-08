@@ -70,10 +70,6 @@ public class MainActivity extends AppCompatActivity {
                 || super.onSupportNavigateUp();
     }
 
-    public MaterialToolbar getToolbar() {
-        return binding.toolbar;
-    }
-
     /**
      * Set the visibility of a menu item
      * @param itemId id of the menu item

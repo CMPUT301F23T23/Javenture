@@ -16,6 +16,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+/**
+ * This class is used to display the list of HouseHoldItem objects in a RecyclerView.
+ */
 public class HouseHoldItemsAdapter extends RecyclerView.Adapter<HouseHoldItemsAdapter.HouseHoldItemsViewHolder>{
 
     private HouseHoldItemViewModel houseHoldItemViewModel;
@@ -30,10 +33,18 @@ public class HouseHoldItemsAdapter extends RecyclerView.Adapter<HouseHoldItemsAd
         this.context = context;
     }
 
+    /**
+     * Set the listener for the item click event
+     * @param listener listener for the item click event
+     */
     public void setOnItemClickListener(OnItemClickListener listener) {
         this.itemClickListener = listener;
     }
 
+    /**
+     * Set the listener for the multi selection mode
+     * @param listener listener for the multi selection mode
+     */
     public void setMultiSelectionModeListener(MultiSelectionModeListener listener) {
         this.multiSelectionModeListener = listener;
     }
@@ -66,6 +77,10 @@ public class HouseHoldItemsAdapter extends RecyclerView.Adapter<HouseHoldItemsAd
         return Objects.requireNonNull(houseHoldItemViewModel.getHouseHoldItems().getValue()).size();
     }
 
+    /**
+     * Toggle the selection of an item
+     * @param position position of the item
+     */
     private void toggleSelection(int position) {
         if (selectedItems.contains(position)) {
             selectedItems.remove(position);
@@ -75,10 +90,18 @@ public class HouseHoldItemsAdapter extends RecyclerView.Adapter<HouseHoldItemsAd
         notifyItemChanged(position);
     }
 
+    /**
+     * Check if an item is selected
+     * @param position position of the item
+     * @return true if the item is selected, false otherwise
+     */
     public boolean isSelected(int position) {
         return selectedItems.contains(position);
     }
 
+    /**
+     * Enter multi selection mode
+     */
     public void enterMultiSelectMode() {
         isInMultiSelectMode = true;
         selectedItems.clear();
@@ -86,6 +109,10 @@ public class HouseHoldItemsAdapter extends RecyclerView.Adapter<HouseHoldItemsAd
         multiSelectionModeListener.onMultiSelectionModeEnter();
     }
 
+    /**
+     * Get the list of selected items
+     * @return list of selected items
+     */
     public List<HouseHoldItem> getSelectedItems() {
         ArrayList<HouseHoldItem> items = new ArrayList<>();
         for (int i : selectedItems) {
@@ -94,6 +121,9 @@ public class HouseHoldItemsAdapter extends RecyclerView.Adapter<HouseHoldItemsAd
         return items;
     }
 
+    /**
+     * Exit multi selection mode
+     */
     public void exitMultiSelectionMode() {
         isInMultiSelectMode = false;
         selectedItems.clear();
@@ -101,15 +131,24 @@ public class HouseHoldItemsAdapter extends RecyclerView.Adapter<HouseHoldItemsAd
         multiSelectionModeListener.onMultiSelectionModeExit();
     }
 
+    /**
+     * Interface for the item click event
+     */
     public interface OnItemClickListener {
         void onItemClick(int position);
     }
 
+    /**
+     * Interface for the multi selection mode
+     */
     public interface MultiSelectionModeListener {
         void onMultiSelectionModeEnter();
         void onMultiSelectionModeExit();
     }
 
+    /**
+     * This class is used to store the views of the item in the RecyclerView
+     */
     class HouseHoldItemsViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView description;
         TextView make;
