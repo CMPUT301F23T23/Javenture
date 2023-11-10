@@ -43,60 +43,22 @@ public class AddHouseHoldItemFragmentTest {
 
     @Test
     public void addHouseHoldItemFragmentTests() {
-        ViewInteraction floatingActionButton = onView(
-                allOf(withId(R.id.add_fab), withContentDescription("Add item"),
-                        childAtPosition(
-                                allOf(withId(R.id.fragment_household_items_constraint_layout),
-                                        childAtPosition(
-                                                withClassName(is("androidx.coordinatorlayout.widget.CoordinatorLayout")),
-                                                0)),
-                                2),
-                        isDisplayed()));
+        ViewInteraction floatingActionButton = onView(withId(R.id.add_fab));
         floatingActionButton.perform(click());
 
-        ViewInteraction textInputEditText = onView(
-                allOf(withId(R.id.make_edit_text),
-                        childAtPosition(
-                                childAtPosition(
-                                        withId(R.id.make_text_input_layout),
-                                        0),
-                                0)));
+        ViewInteraction textInputEditText = onView(withId(R.id.make_edit_text));
         textInputEditText.perform(scrollTo(), replaceText("a"), closeSoftKeyboard());
 
-        ViewInteraction textInputEditText2 = onView(
-                allOf(withId(R.id.model_edit_text),
-                        childAtPosition(
-                                childAtPosition(
-                                        withId(R.id.model_text_input_layout),
-                                        0),
-                                0)));
+        ViewInteraction textInputEditText2 = onView(withId(R.id.model_edit_text));
         textInputEditText2.perform(scrollTo(), replaceText("a"), closeSoftKeyboard());
 
-        ViewInteraction textInputEditText3 = onView(
-                allOf(withId(R.id.serial_number_edit_text),
-                        childAtPosition(
-                                childAtPosition(
-                                        withId(R.id.serial_number_text_input_layout),
-                                        0),
-                                0)));
+        ViewInteraction textInputEditText3 = onView(withId(R.id.serial_number_edit_text));
         textInputEditText3.perform(scrollTo(), replaceText("a"), closeSoftKeyboard());
 
-        ViewInteraction textInputEditText4 = onView(
-                allOf(withId(R.id.description_edit_text),
-                        childAtPosition(
-                                childAtPosition(
-                                        withId(R.id.description_text_input_layout),
-                                        0),
-                                0)));
+        ViewInteraction textInputEditText4 = onView(withId(R.id.description_edit_text));
         textInputEditText4.perform(scrollTo(), replaceText("a"), closeSoftKeyboard());
 
-        ViewInteraction textInputEditText5 = onView(
-                allOf(withId(R.id.value_edit_text),
-                        childAtPosition(
-                                childAtPosition(
-                                        withId(R.id.value_text_input_layout),
-                                        0),
-                                0)));
+        ViewInteraction textInputEditText5 = onView(withId(R.id.value_edit_text));
         textInputEditText5.perform(scrollTo(), replaceText("123.23"), closeSoftKeyboard());
 
         ViewInteraction addBtn = onView(allOf(withId(R.id.add_fab), withText("Add")));
