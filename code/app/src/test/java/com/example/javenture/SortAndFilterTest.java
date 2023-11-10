@@ -316,4 +316,44 @@ public class SortAndFilterTest {
         HashSet<DocumentSnapshot> result = new HashSet<>(repo.filterDocuments(sortAndFilterOptions, docs));
         assertEquals(expected, result);
     }
+
+    @Test
+    public void testFilterByTags() {
+        DocumentSnapshot doc1 = Mockito.mock(DocumentSnapshot.class);
+        Mockito.when(doc1.get("tags")).thenReturn(Arrays.asList("bbb", "aaa"));
+        DocumentSnapshot doc2 = Mockito.mock(DocumentSnapshot.class);
+        Mockito.when(doc2.get("tags")).thenReturn(Arrays.asList("bbb", "ccc"));
+        DocumentSnapshot doc3 = Mockito.mock(DocumentSnapshot.class);
+        Mockito.when(doc3.get("tags")).thenReturn(Arrays.asList("ccc", "ddd"));
+
+        ArrayList<DocumentSnapshot> docs = new ArrayList<>();
+        docs.add(doc2);
+        docs.add(doc3);
+        docs.add(doc1);
+
+        AuthenticationService authServ = new AuthenticationService(mockedAuth, mockedDb);
+        HouseHoldItemRepository repo = new HouseHoldItemRepository(mockedDb, authServ);
+        SortAndFilterOption sortAndFilterOptions = new SortAndFilterOption();
+        sortAndFilterOptions.setFilterType("tags");
+        sortAndFilterOptions.setTags(new ArrayList<>(Arrays.asList("bbb")));
+
+        HashSet<DocumentSnapshot> expected = new HashSet<>();
+        expected.add(doc1);
+        expected.add(doc2);
+
+        HashSet<DocumentSnapshot> result = new HashSet<>(repo.filterDocuments(sortAndFilterOptions, docs));
+        assertEquals(expected, result);
+
+        sortAndFilterOptions.setTags(new ArrayList<>(Arrays.asList("bbb", "ccc")));
+        expected = new HashSet<>();
+        expected.add(doc2);
+        result = new HashSet<>(repo.filterDocuments(sortAndFilterOptions, docs));
+        assertEquals(expected, result);
+
+        sortAndFilterOptions.setTags(new ArrayList<>(Arrays.asList("bbb", "ccc")));
+        expected = new HashSet<>();
+        expected.add(doc2);
+        result = new HashSet<>(repo.filterDocuments(sortAndFilterOptions, docs));
+        assertEquals(expected, result);
+    }
 }
