@@ -356,4 +356,39 @@ public class SortAndFilterTest {
         result = new HashSet<>(repo.filterDocuments(sortAndFilterOptions, docs));
         assertEquals(expected, result);
     }
+
+    @Test
+    public void testFilterByDescriptionKeywords() {
+        DocumentSnapshot doc1 = Mockito.mock(DocumentSnapshot.class);
+        Mockito.when(doc1.getString("description")).thenReturn("aaa bbb ccc ddd");
+        DocumentSnapshot doc2 = Mockito.mock(DocumentSnapshot.class);
+        Mockito.when(doc2.getString("description")).thenReturn("bbb ccc ddd eee");
+        DocumentSnapshot doc3 = Mockito.mock(DocumentSnapshot.class);
+        Mockito.when(doc3.getString("description")).thenReturn("ccc ddd eee fff");
+
+        ArrayList<DocumentSnapshot> docs = new ArrayList<>();
+        docs.add(doc2);
+        docs.add(doc3);
+        docs.add(doc1);
+
+        AuthenticationService authServ = new AuthenticationService(mockedAuth, mockedDb);
+        HouseHoldItemRepository repo = new HouseHoldItemRepository(mockedDb, authServ);
+        SortAndFilterOption sortAndFilterOptions = new SortAndFilterOption();
+        sortAndFilterOptions.setFilterType("description_keywords");
+        sortAndFilterOptions.setDescriptionKeywords(new ArrayList<>(Arrays.asList("bbb")));
+
+        HashSet<DocumentSnapshot> expected = new HashSet<>();
+        expected.add(doc1);
+        expected.add(doc2);
+
+        HashSet<DocumentSnapshot> result = new HashSet<>(repo.filterDocuments(sortAndFilterOptions, docs));
+        assertEquals(expected, result);
+
+        sortAndFilterOptions.setDescriptionKeywords(new ArrayList<>(Arrays.asList("aaa", "bbb")));
+        expected = new HashSet<>();
+        expected.add(doc1);
+        result = new HashSet<>(repo.filterDocuments(sortAndFilterOptions, docs));
+        assertEquals(expected, result);
+    }
+
 }
