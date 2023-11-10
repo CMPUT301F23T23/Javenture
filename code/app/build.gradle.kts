@@ -48,4 +48,5 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.android.material:material:1.9.0")
+    testImplementation("org.mockito:mockito-core:3.12.4")
 }
