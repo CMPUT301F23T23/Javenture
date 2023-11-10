@@ -12,12 +12,18 @@ import org.mockito.Mockito;
 import org.junit.Test;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import androidx.core.util.Pair;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SortAndFilterTest {
@@ -245,5 +251,42 @@ public class SortAndFilterTest {
         sortAndFilterOptions.setSortOption("descending");
         result = repo.sortDocuments(sortAndFilterOptions, docs);
         assertEquals(expected, result);
+    }
+
+    @Test
+    public void testFilterByDateRange() {
+        DocumentSnapshot doc1 = Mockito.mock(DocumentSnapshot.class);
+        Mockito.when(doc1.getString("datePurchased")).thenReturn("Oct 1, 2020");
+        DocumentSnapshot doc2 = Mockito.mock(DocumentSnapshot.class);
+        Mockito.when(doc2.getString("datePurchased")).thenReturn("Oct 15, 2020");
+        DocumentSnapshot doc3 = Mockito.mock(DocumentSnapshot.class);
+        Mockito.when(doc3.getString("datePurchased")).thenReturn("Oct 30, 2020");
+
+        ArrayList<DocumentSnapshot> docs = new ArrayList<>();
+        docs.add(doc2);
+        docs.add(doc3);
+        docs.add(doc1);
+
+        AuthenticationService authServ = new AuthenticationService(mockedAuth, mockedDb);
+        HouseHoldItemRepository repo = new HouseHoldItemRepository(mockedDb, authServ);
+        SortAndFilterOption sortAndFilterOptions = new SortAndFilterOption();
+        sortAndFilterOptions.setFilterType("date_range");
+        sortAndFilterOptions.setDateRange(new Pair<>(parseDate("Oct 1, 2020"), parseDate("Oct 15, 2020")));
+
+        HashSet<DocumentSnapshot> expected = new HashSet<>();
+        expected.add(doc1);
+        expected.add(doc2);
+
+        HashSet<DocumentSnapshot> result = new HashSet<>(repo.filterDocuments(sortAndFilterOptions, docs));
+        assertEquals(expected, result);
+    }
+
+    private LocalDate parseDate(String dateString) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.ENGLISH);
+        try {
+            return LocalDate.parse(dateString, formatter);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("Invalid date format", e);
+        }
     }
 }
