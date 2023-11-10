@@ -289,4 +289,31 @@ public class SortAndFilterTest {
             throw new IllegalArgumentException("Invalid date format", e);
         }
     }
+
+    @Test
+    public void testFilterByMake() {
+        DocumentSnapshot doc1 = Mockito.mock(DocumentSnapshot.class);
+        Mockito.when(doc1.getString("make")).thenReturn("aaa");
+        DocumentSnapshot doc2 = Mockito.mock(DocumentSnapshot.class);
+        Mockito.when(doc2.getString("make")).thenReturn("bbb");
+        DocumentSnapshot doc3 = Mockito.mock(DocumentSnapshot.class);
+        Mockito.when(doc3.getString("make")).thenReturn("ccc");
+
+        ArrayList<DocumentSnapshot> docs = new ArrayList<>();
+        docs.add(doc2);
+        docs.add(doc3);
+        docs.add(doc1);
+
+        AuthenticationService authServ = new AuthenticationService(mockedAuth, mockedDb);
+        HouseHoldItemRepository repo = new HouseHoldItemRepository(mockedDb, authServ);
+        SortAndFilterOption sortAndFilterOptions = new SortAndFilterOption();
+        sortAndFilterOptions.setFilterType("make");
+        sortAndFilterOptions.setMakeKeyword("aaa");
+
+        HashSet<DocumentSnapshot> expected = new HashSet<>();
+        expected.add(doc1);
+
+        HashSet<DocumentSnapshot> result = new HashSet<>(repo.filterDocuments(sortAndFilterOptions, docs));
+        assertEquals(expected, result);
+    }
 }
