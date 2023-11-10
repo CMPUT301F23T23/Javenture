@@ -12,6 +12,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.auth.User;
+import com.google.rpc.context.AttributeContext;
 
 import java.util.HashMap;
 
@@ -26,6 +27,11 @@ public class AuthenticationService {
     public AuthenticationService() {
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
+    }
+
+    public AuthenticationService(FirebaseAuth auth, FirebaseFirestore db) {
+        mAuth = auth;
+        this.db = db;
     }
 
     /**

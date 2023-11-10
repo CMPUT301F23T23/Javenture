@@ -52,6 +52,11 @@ public class HouseHoldItemRepository {
         authService = new AuthenticationService();
     }
 
+    public HouseHoldItemRepository(FirebaseFirestore db, AuthenticationService authService) {
+        this.db = db;
+        this.authService = authService;
+    }
+
     /**
      * Listener for when items are fetched from the db
      */
@@ -94,7 +99,7 @@ public class HouseHoldItemRepository {
      * @param itemDocs List of documents to be filtered
      * @return List of filtered documents
      */
-    private List<DocumentSnapshot> filterDocuments(SortAndFilterOption sortAndFilterOption, List<DocumentSnapshot> itemDocs) {
+    public List<DocumentSnapshot> filterDocuments(SortAndFilterOption sortAndFilterOption, List<DocumentSnapshot> itemDocs) {
         if (sortAndFilterOption.getFilterType() == null) {
             return itemDocs;
         }
@@ -122,7 +127,7 @@ public class HouseHoldItemRepository {
      * @param itemDocs List of documents to be sorted
      * @return List of sorted documents
      */
-    private List<DocumentSnapshot> sortDocuments(SortAndFilterOption sortAndFilterOption, List<DocumentSnapshot> itemDocs) {
+    public List<DocumentSnapshot> sortDocuments(SortAndFilterOption sortAndFilterOption, List<DocumentSnapshot> itemDocs) {
         if (sortAndFilterOption.getSortType() == null || sortAndFilterOption.getSortOption() == null) {
             return itemDocs;
         }

@@ -70,9 +70,9 @@ public class HouseHoldItemsFragment extends Fragment {
                 // display Snackbar only once
 
                 if (!snackbarShownThisSession) {
-                    Snackbar.make(binding.getRoot(), "Signed in anonymously", Snackbar.LENGTH_SHORT)
-                            .setAnchorView(binding.totalMonthlyChargeContainer)
-                            .setAction("Action", null).show();
+//                    Snackbar.make(binding.getRoot(), "Signed in anonymously", Snackbar.LENGTH_SHORT)
+//                            .setAnchorView(binding.totalMonthlyChargeContainer)
+//                            .setAction("Action", null).show();
                     snackbarShownThisSession = true;
                 }
 
