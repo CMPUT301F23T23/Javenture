@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -156,6 +157,78 @@ public class SortAndFilterTest {
         HouseHoldItemRepository repo = new HouseHoldItemRepository(mockedDb, authServ);
         SortAndFilterOption sortAndFilterOptions = new SortAndFilterOption();
         sortAndFilterOptions.setSortType("date");
+
+        ArrayList<DocumentSnapshot> expected = new ArrayList<>();
+        expected.add(doc1);
+        expected.add(doc2);
+        expected.add(doc3);
+        sortAndFilterOptions.setSortOption("ascending");
+        List<DocumentSnapshot> result = repo.sortDocuments(sortAndFilterOptions, docs);
+        assertEquals(expected, result);
+
+        expected = new ArrayList<>();
+        expected.add(doc3);
+        expected.add(doc2);
+        expected.add(doc1);
+        sortAndFilterOptions.setSortOption("descending");
+        result = repo.sortDocuments(sortAndFilterOptions, docs);
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void testSortBySingleTag() {
+        DocumentSnapshot doc1 = Mockito.mock(DocumentSnapshot.class);
+        Mockito.when(doc1.get("tags")).thenReturn(Collections.singletonList("aAa"));
+        DocumentSnapshot doc2 = Mockito.mock(DocumentSnapshot.class);
+        Mockito.when(doc2.get("tags")).thenReturn(Collections.singletonList("BbB"));
+        DocumentSnapshot doc3 = Mockito.mock(DocumentSnapshot.class);
+        Mockito.when(doc3.get("tags")).thenReturn(Collections.singletonList("ccC"));
+
+        ArrayList<DocumentSnapshot> docs = new ArrayList<>();
+        docs.add(doc2);
+        docs.add(doc3);
+        docs.add(doc1);
+
+        AuthenticationService authServ = new AuthenticationService(mockedAuth, mockedDb);
+        HouseHoldItemRepository repo = new HouseHoldItemRepository(mockedDb, authServ);
+        SortAndFilterOption sortAndFilterOptions = new SortAndFilterOption();
+        sortAndFilterOptions.setSortType("tags");
+
+        ArrayList<DocumentSnapshot> expected = new ArrayList<>();
+        expected.add(doc1);
+        expected.add(doc2);
+        expected.add(doc3);
+        sortAndFilterOptions.setSortOption("ascending");
+        List<DocumentSnapshot> result = repo.sortDocuments(sortAndFilterOptions, docs);
+        assertEquals(expected, result);
+
+        expected = new ArrayList<>();
+        expected.add(doc3);
+        expected.add(doc2);
+        expected.add(doc1);
+        sortAndFilterOptions.setSortOption("descending");
+        result = repo.sortDocuments(sortAndFilterOptions, docs);
+        assertEquals(expected, result);
+    }
+
+    @Test
+    public void testSortByMultipleTags() {
+        DocumentSnapshot doc1 = Mockito.mock(DocumentSnapshot.class);
+        Mockito.when(doc1.get("tags")).thenReturn(Arrays.asList("bbB", "AaA"));
+        DocumentSnapshot doc2 = Mockito.mock(DocumentSnapshot.class);
+        Mockito.when(doc2.get("tags")).thenReturn(Arrays.asList("Bbb", "cCc"));
+        DocumentSnapshot doc3 = Mockito.mock(DocumentSnapshot.class);
+        Mockito.when(doc3.get("tags")).thenReturn(Arrays.asList("cCc", "dDd"));
+
+        ArrayList<DocumentSnapshot> docs = new ArrayList<>();
+        docs.add(doc2);
+        docs.add(doc3);
+        docs.add(doc1);
+
+        AuthenticationService authServ = new AuthenticationService(mockedAuth, mockedDb);
+        HouseHoldItemRepository repo = new HouseHoldItemRepository(mockedDb, authServ);
+        SortAndFilterOption sortAndFilterOptions = new SortAndFilterOption();
+        sortAndFilterOptions.setSortType("tags");
 
         ArrayList<DocumentSnapshot> expected = new ArrayList<>();
         expected.add(doc1);
