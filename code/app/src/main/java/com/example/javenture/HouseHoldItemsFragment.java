@@ -75,6 +75,7 @@ public class HouseHoldItemsFragment extends Fragment {
 //                            .setAction("Action", null).show();
                     snackbarShownThisSession = true;
                 }
+                Log.d("HouseHoldItemsFragment", "onViewCreated: signed in anonymously");
 
                 houseHoldItemViewModel.observeItems(sortAndFilterViewModel.getSortAndFilterOption().getValue());
 
@@ -91,6 +92,7 @@ public class HouseHoldItemsFragment extends Fragment {
             }
             @Override
             public void onSignInFailed() {
+                Log.e("auth", "onViewCreated: sign in failed");
                 Snackbar.make(binding.getRoot(), "Sign in failed", Snackbar.LENGTH_SHORT)
                         .setAnchorView(binding.totalMonthlyChargeContainer)
                         .setAction("Action", null).show();
@@ -104,8 +106,7 @@ public class HouseHoldItemsFragment extends Fragment {
         houseHoldItemsAdapter.setOnItemClickListener(new HouseHoldItemsAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(int position) {
-                HouseHoldItemsFragmentDirections.EditItemAction action = HouseHoldItemsFragmentDirections.editItemAction();
-                action.setItem(houseHoldItemViewModel.getHouseHoldItem(position));
+                HouseHoldItemsFragmentDirections.EditItemAction action = HouseHoldItemsFragmentDirections.editItemAction(houseHoldItemViewModel.getHouseHoldItem(position));
                 navController.navigate(action);
             }
         });

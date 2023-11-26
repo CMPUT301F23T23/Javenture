@@ -13,11 +13,29 @@
         android:orientation="vertical"
         >
 
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/image_list_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/add_image_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add image"
+            app:icon="@drawable/baseline_add_a_photo_24"
+            app:cornerRadius="8dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            style="@style/Widget.MaterialComponents.Button.UnelevatedButton"/>
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/make_text_input_layout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:hint="Make">
 
             <com.google.android.material.textfield.TextInputEditText

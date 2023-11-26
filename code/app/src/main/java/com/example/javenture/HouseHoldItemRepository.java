@@ -1,7 +1,6 @@
 package com.example.javenture;
 
-import static com.google.firebase.firestore.core.UserData.Source.Set;
-
+import android.net.Uri;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -10,31 +9,20 @@ import androidx.core.util.Pair;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
 
-import org.w3c.dom.Document;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -452,6 +440,16 @@ public class HouseHoldItemRepository {
         item.setComment(document.getString("comment"));
         item.setModel(document.getString("model"));
         item.setTags((List<String>) document.get("tags"));
+
+        List<String> photoUrls = (List<String>) document.get("photoUrls");
+        if (photoUrls != null) {
+            List<ImageItem> imageItems = new ArrayList<>();
+            for (String url : photoUrls) {
+                imageItems.add(new ImageItem(url));
+            }
+            item.setImageItems(imageItems);
+        }
+
         return item;
     }
 

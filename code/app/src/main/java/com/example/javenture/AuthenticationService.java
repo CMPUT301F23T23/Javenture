@@ -40,6 +40,7 @@ public class AuthenticationService {
      */
     public void signInAnonymously(OnSignInListener listener) {
         if (mAuth.getCurrentUser() != null) {
+            Log.d("auth", "user already signed in: " + mAuth.getCurrentUser().getUid());
             listener.onSignIn();
             return;
         }
