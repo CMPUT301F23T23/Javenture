@@ -1,15 +1,22 @@
 package com.example.javenture;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.javenture.databinding.FragmentAddHouseholdItemBinding;
 import com.google.android.material.datepicker.MaterialDatePicker;
@@ -25,6 +32,8 @@ import java.util.Locale;
 
 public class AddHouseHoldItemFragment extends Fragment {
 
+    private final String TAG = "AddHouseHoldItemFrag";
+
     private FragmentAddHouseholdItemBinding binding;
     private TextInputEditText makeEditText;
     private TextInputEditText modelEditText;
@@ -34,9 +43,29 @@ public class AddHouseHoldItemFragment extends Fragment {
     private TextInputEditText dateEditText;
     private ChipInputView chipInputView;
     private TextInputEditText commentEditText;
+    private RecyclerView imageListRecyclerView;
+    private ImageAdapter imageAdapter;
+    private Button addImageBtn;
+    private ActivityResultLauncher<Void> cameraLauncher;
+    private ArrayList<ImageItem> imageItems;
 
     private HouseHoldItemViewModel houseHoldItemViewModel;
 
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        cameraLauncher = registerForActivityResult(new CameraActivityResultContract(), imageItem -> {
+            if (imageItem != null) {
+                Log.d(TAG, "result: " + imageItem.getLocalUri().toString());
+                context.grantUriPermission(context.getPackageName(), imageItem.getLocalUri(), Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                imageItems.add(imageItem);
+                imageAdapter.notifyItemInserted(imageItems.size() - 1);
+            } else {
+                Log.e(TAG, "no image selected");
+            }
+        });
+    }
 
     @Override
     public View onCreateView(
@@ -54,13 +83,15 @@ public class AddHouseHoldItemFragment extends Fragment {
         chipInputView = binding.chipInputView;
         chipInputView.setHint("Tags");
         commentEditText = binding.commentEditText;
+        imageListRecyclerView = binding.imageListRecyclerView;
+        addImageBtn = binding.addImageButton;
+
+        houseHoldItemViewModel = new ViewModelProvider(requireActivity()).get(HouseHoldItemViewModel.class);
 
         MainActivity mainActivity = (MainActivity) getActivity();
         if (mainActivity != null) {
             mainActivity.setMenuItemVisibility(R.id.action_sort_and_filter, false);
         }
-
-        houseHoldItemViewModel = new ViewModelProvider(requireActivity()).get(HouseHoldItemViewModel.class);
 
         return binding.getRoot();
 
@@ -70,6 +101,15 @@ public class AddHouseHoldItemFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         NavController navController = NavHostFragment.findNavController(AddHouseHoldItemFragment.this);
+
+        imageItems = new ArrayList<>();
+        imageAdapter = new ImageAdapter(getContext(), imageItems);
+        imageListRecyclerView.setAdapter(imageAdapter);
+        imageListRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
+
+        addImageBtn.setOnClickListener(v -> {
+            cameraLauncher.launch(null);
+        });
 
         // build material date picker
         dateEditText.setOnClickListener(v -> {
@@ -140,7 +180,7 @@ public class AddHouseHoldItemFragment extends Fragment {
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.ENGLISH);
 
-            HouseHoldItem houseHoldItem = new HouseHoldItem(null, description, make, LocalDate.parse(date, formatter), Double.parseDouble(value), serialNumber, comment, model, new ArrayList<>(), tags);
+            HouseHoldItem houseHoldItem = new HouseHoldItem(null, description, make, LocalDate.parse(date, formatter), Double.parseDouble(value), serialNumber, comment, model, imageItems, tags);
 
             houseHoldItemViewModel.addItem(houseHoldItem);
 

@@ -65,7 +65,18 @@ public class HouseHoldItemViewModel extends ViewModel {
      * @param item HouseHoldItem object to be added
      */
     public void addItem(HouseHoldItem item) {
-        itemRepository.addItem(item.toMap());
+        imageRepository.uploadImages(item.getImageItems(), new ImageRepository.OnUploadListener() {
+            @Override
+            public void onUpload(List<ImageItem> remoteImageItems) {
+                item.setImageItems(remoteImageItems);
+                itemRepository.addItem(item.toMap());
+            }
+
+            @Override
+            public void onFailure() {
+                Log.e(TAG, "failed to upload images");
+            }
+        });
     }
 
     /**
