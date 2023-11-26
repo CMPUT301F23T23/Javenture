@@ -1,10 +1,12 @@
 package com.example.javenture;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
@@ -55,6 +57,35 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
         public ViewHolder(View view) {
             super(view);
             imageView = view.findViewById(R.id.image_view);
+            imageView.setOnClickListener(v -> showImageDialog(getAdapterPosition()));
         }
+    }
+
+    private void showImageDialog(int pos) {
+        ImageItem imageItem = imageItems.get(pos);
+
+        Dialog dialog = new Dialog(context);
+        dialog.setContentView(R.layout.dialog_image_enlarged);
+        ImageView dialogImageView = dialog.findViewById(R.id.dialog_image_view);
+        if (imageItem.isLocal()) {
+            dialogImageView.setImageURI(imageItem.getLocalUri());
+        } else {
+            Glide.with(context)
+                 .load(imageItem.getRemoteUrl())
+                 .into(dialogImageView);
+        }
+
+        Button deleteButton = dialog.findViewById(R.id.delete_button);
+        deleteButton.setOnClickListener(v -> {
+            imageItems.remove(pos);
+            notifyItemRemoved(pos);
+            dialog.dismiss();
+        });
+
+        Button cancelButton = dialog.findViewById(R.id.cancel_button);
+        cancelButton.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
+
     }
 }

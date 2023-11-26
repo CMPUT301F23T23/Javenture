@@ -1,6 +1,5 @@
 package com.example.javenture;
 
-import android.net.Uri;
 import android.util.Log;
 
 import com.google.firebase.auth.FirebaseUser;
@@ -12,6 +11,9 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Handles the upload and deletion of images to/from storage
+ */
 public class ImageRepository {
     private FirebaseStorage storage;
     private AuthenticationService authService;
@@ -32,6 +34,11 @@ public class ImageRepository {
         void onFailure();
     }
 
+    /**
+     * Upload a list of images to storage
+     * @param imageItems list of ImageItem objects to be uploaded
+     * @param listener listener for the upload event
+     */
     public void uploadImages(List<ImageItem> imageItems, OnUploadListener listener) {
         FirebaseUser user = authService.getCurrentUser();
         if (user == null) {
@@ -79,5 +86,37 @@ public class ImageRepository {
                     });
         }
 
+    }
+
+    /**
+     * Delete a list of images from storage
+     * @param remotePhotoUrls list of remote photo urls to be deleted from storage
+     */
+    public void deleteImagesUsingUrls(List<String> remotePhotoUrls) {
+        FirebaseUser user = authService.getCurrentUser();
+        if (user == null) {
+            Log.e(TAG, "user is null");
+            return;
+        }
+        for (String url : remotePhotoUrls) {
+            StorageReference imageRef = storage.getReferenceFromUrl(url);
+            imageRef.delete()
+                    .addOnSuccessListener(aVoid -> Log.d(TAG, "image deleted"))
+                    .addOnFailureListener(e -> Log.e(TAG, "failed to delete image"));
+        }
+    }
+
+    /**
+     * Delete a list of images from storage
+     * @param imageItems list of ImageItem objects to be deleted from storage
+     */
+    public void deleteImages(List<ImageItem> imageItems) {
+        List<String> remotePhotoUrls = new ArrayList<>();
+        for (ImageItem imageItem : imageItems) {
+            if (!imageItem.isLocal()) {
+                remotePhotoUrls.add(imageItem.getRemoteUrl());
+            }
+        }
+        this.deleteImagesUsingUrls(remotePhotoUrls);
     }
 }

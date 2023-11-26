@@ -2,12 +2,12 @@ package com.example.javenture;
 
 import android.util.Log;
 
-import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.ArrayList;
@@ -84,6 +84,7 @@ public class HouseHoldItemViewModel extends ViewModel {
      * @param item HouseHoldItem object to be removed
      */
     public void deleteItem(HouseHoldItem item) {
+        imageRepository.deleteImages(item.getImageItems());
         itemRepository.deleteItem(item.getId());
     }
 
@@ -95,6 +96,7 @@ public class HouseHoldItemViewModel extends ViewModel {
         List<String> ids = new ArrayList<>();
         for (HouseHoldItem item : items) {
             ids.add(item.getId());
+            imageRepository.deleteImages(item.getImageItems());
         }
         itemRepository.deleteItems(ids);
     }
@@ -105,16 +107,34 @@ public class HouseHoldItemViewModel extends ViewModel {
      * @param item HouseHoldItem object with updated values
      */
     public void editItem(HouseHoldItem item) {
-        imageRepository.uploadImages(item.getImageItems(), new ImageRepository.OnUploadListener() {
-            @Override
-            public void onUpload(List<ImageItem> remoteImageItems) {
-                item.setImageItems(remoteImageItems);
-                itemRepository.editItem(item.getId(), item.toMap());
+        ArrayList<String> remotePhotoUrls = new ArrayList<>();
+        for (ImageItem imageItem : item.getImageItems()) {
+            if (!imageItem.isLocal()) {
+                remotePhotoUrls.add(imageItem.getRemoteUrl());
             }
-
+        }
+        itemRepository.getPhotoUrlsOfItem(item.getId(), new OnSuccessListener<List<String>>() {
             @Override
-            public void onFailure() {
-                Log.e(TAG, "failed to upload images");
+            public void onSuccess(List<String> dbPhotoUrls) {
+                ArrayList<String> remotePhotoUrlsToDelete = new ArrayList<>();
+                for (String dbPhotoUrl : dbPhotoUrls) {
+                    if (!remotePhotoUrls.contains(dbPhotoUrl)) {
+                        remotePhotoUrlsToDelete.add(dbPhotoUrl);
+                    }
+                }
+                imageRepository.deleteImagesUsingUrls(remotePhotoUrlsToDelete);
+                imageRepository.uploadImages(item.getImageItems(), new ImageRepository.OnUploadListener() {
+                    @Override
+                    public void onUpload(List<ImageItem> remoteImageItems) {
+                        item.setImageItems(remoteImageItems);
+                        itemRepository.editItem(item.getId(), item.toMap());
+                    }
+
+                    @Override
+                    public void onFailure() {
+                        Log.e(TAG, "failed to upload images");
+                    }
+                });
             }
         });
     }
