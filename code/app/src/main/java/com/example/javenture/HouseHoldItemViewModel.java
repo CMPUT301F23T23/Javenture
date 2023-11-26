@@ -1,5 +1,7 @@
 package com.example.javenture;
 
+import android.util.Log;
+
 import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
 import androidx.lifecycle.LiveData;
@@ -20,12 +22,14 @@ import java.util.Objects;
  */
 public class HouseHoldItemViewModel extends ViewModel {
     private HouseHoldItemRepository itemRepository = new HouseHoldItemRepository();
+    private ImageRepository imageRepository = new ImageRepository();
     private final MutableLiveData<ArrayList<HouseHoldItem>> houseHoldItems = new MutableLiveData<>(new ArrayList<>());
     private ListenerRegistration listenerRegistration;
 
     public LiveData<ArrayList<HouseHoldItem>> getHouseHoldItems() {
         return houseHoldItems;
     }
+    private final String TAG = "HouseHoldItemViewModel";
 
     /**
      * Observe changes to the items collection in the db
@@ -90,7 +94,18 @@ public class HouseHoldItemViewModel extends ViewModel {
      * @param item HouseHoldItem object with updated values
      */
     public void editItem(HouseHoldItem item) {
-        itemRepository.editItem(item.getId(), item.toMap());
+        imageRepository.uploadImages(item.getImageItems(), new ImageRepository.OnUploadListener() {
+            @Override
+            public void onUpload(List<ImageItem> remoteImageItems) {
+                item.setImageItems(remoteImageItems);
+                itemRepository.editItem(item.getId(), item.toMap());
+            }
+
+            @Override
+            public void onFailure() {
+                Log.e(TAG, "failed to upload images");
+            }
+        });
     }
 
     /**

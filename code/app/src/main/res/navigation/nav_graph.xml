@@ -39,8 +39,7 @@
         <argument
             android:name="item"
             app:argType="com.example.javenture.HouseHoldItem"
-            app:nullable="true"
-            android:defaultValue="@null" />
+            app:nullable="true" />
 
         <action
             android:id="@+id/confirm_action"

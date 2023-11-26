@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.javenture"
-        minSdk = 31
+        minSdk = 33
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -45,7 +45,12 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:32.3.1"))
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-storage")
     implementation("com.google.android.material:material:1.9.0")
+    implementation("androidx.camera:camera-camera2:1.3.0")
+    implementation("androidx.camera:camera-lifecycle:1.3.0")
+    implementation("androidx.camera:camera-view:1.3.0")
+    implementation("com.github.bumptech.glide:glide:4.12.0")
     testImplementation("org.mockito:mockito-core:3.12.4")
     androidTestImplementation("androidx.test.ext:junit:1.2.0-alpha01")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.0-alpha01")

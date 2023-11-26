@@ -140,7 +140,7 @@ public class AddHouseHoldItemFragment extends Fragment {
 
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.ENGLISH);
 
-            HouseHoldItem houseHoldItem = new HouseHoldItem(null, description, make, LocalDate.parse(date, formatter), Double.parseDouble(value), serialNumber, comment, model, null, tags);
+            HouseHoldItem houseHoldItem = new HouseHoldItem(null, description, make, LocalDate.parse(date, formatter), Double.parseDouble(value), serialNumber, comment, model, new ArrayList<>(), tags);
 
             houseHoldItemViewModel.addItem(houseHoldItem);
 

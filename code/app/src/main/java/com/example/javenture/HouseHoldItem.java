@@ -1,20 +1,21 @@
 package com.example.javenture;
 
+import android.net.Uri;
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.io.Serializable;
-import java.net.URI;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Contains information about a household item
  */
-public class HouseHoldItem implements Serializable {
+public class HouseHoldItem implements Parcelable {
     private String id;
     private String description;
     private String make;
@@ -23,11 +24,11 @@ public class HouseHoldItem implements Serializable {
     private String serialNumber;
     private String comment;
     private String model;
-    private List<URI> photoURIs;
+    private List<ImageItem> imageItems;
     private List<String> tags;
 
     public HouseHoldItem() { }
-    public HouseHoldItem(String id, String description, String make, LocalDate datePurchased, double price, String serialNumber, String comment, String model, List<URI> photoURIs, List<String> tags) {
+    public HouseHoldItem(String id, String description, String make, LocalDate datePurchased, double price, String serialNumber, String comment, String model, List<ImageItem> imageItems, List<String> tags) {
         this.id = id;
         this.description = description;
         this.make = make;
@@ -36,8 +37,24 @@ public class HouseHoldItem implements Serializable {
         this.serialNumber = serialNumber;
         this.comment = comment;
         this.model = model;
-        this.photoURIs = photoURIs;
+        this.imageItems = imageItems;
         this.tags = tags;
+    }
+
+    protected HouseHoldItem(Parcel in) {
+        id = in.readString();
+        description = in.readString();
+        make = in.readString();
+        datePurchased = in.readSerializable(LocalDate.class.getClassLoader(), LocalDate.class);
+        price = in.readDouble();
+        serialNumber = in.readString();
+        comment = in.readString();
+        model = in.readString();
+
+        imageItems = new ArrayList<>();
+        in.readTypedList(imageItems, ImageItem.CREATOR); // Make sure ImageItem is Parcelable
+
+        tags = in.createStringArrayList();
     }
 
     /**
@@ -54,7 +71,13 @@ public class HouseHoldItem implements Serializable {
         map.put("comment", comment);
         map.put("model", model);
         map.put("tags", tags);
-        // TODO photos
+        // convert photoURIs to a list of strings
+        List<String> photoUrls = new ArrayList<>();
+        for (ImageItem imageItem : imageItems) {
+            assert !imageItem.isLocal();
+            photoUrls.add(imageItem.getRemoteUrl());
+        }
+        map.put("photoUrls", photoUrls);
         return map;
     }
 
@@ -119,12 +142,12 @@ public class HouseHoldItem implements Serializable {
         this.model = model;
     }
 
-    public List<URI> getPhotoURIs() {
-        return photoURIs;
+    public List<ImageItem> getImageItems() {
+        return imageItems;
     }
 
-    public void setPhotoURIs(List<URI> photoURIs) {
-        this.photoURIs = photoURIs;
+    public void setImageItems(List<ImageItem> imageItems) {
+        this.imageItems = imageItems;
     }
 
     public List<String> getTags() {
@@ -172,5 +195,36 @@ public class HouseHoldItem implements Serializable {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public static final Creator<HouseHoldItem> CREATOR = new Creator<HouseHoldItem>() {
+        @Override
+        public HouseHoldItem createFromParcel(Parcel in) {
+            return new HouseHoldItem(in);
+        }
+
+        @Override
+        public HouseHoldItem[] newArray(int size) {
+            return new HouseHoldItem[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(id);
+        parcel.writeString(description);
+        parcel.writeString(make);
+        parcel.writeSerializable(datePurchased); // For LocalDate
+        parcel.writeDouble(price);
+        parcel.writeString(serialNumber);
+        parcel.writeString(comment);
+        parcel.writeString(model);
+        parcel.writeTypedList(imageItems);
+        parcel.writeStringList(tags);
     }
 }
