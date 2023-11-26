@@ -62,7 +62,7 @@ public class EditHouseHoldItemFragment extends Fragment {
                 imageItems.add(imageItem);
                 imageAdapter.notifyItemInserted(imageItems.size() - 1);
             } else {
-                Log.e(TAG, "failed to get image");
+                Log.e(TAG, "no image selected");
             }
         });
     }

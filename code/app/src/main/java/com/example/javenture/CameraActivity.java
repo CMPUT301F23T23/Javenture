@@ -1,7 +1,5 @@
 package com.example.javenture;
 
-import static androidx.core.content.ContentProviderCompat.requireContext;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -9,14 +7,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
-import android.view.View;
 import android.widget.ImageButton;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
@@ -44,6 +40,7 @@ public class CameraActivity extends AppCompatActivity {
     private ImageButton captureButton;
     private ImageButton flipButton;
     private ImageButton galleryButton;
+    private ImageButton backButton;
     private CameraSelector cameraSelector ;
     private ActivityResultLauncher<PickVisualMediaRequest> pickMedia;
 
@@ -51,12 +48,13 @@ public class CameraActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.fragment_camera);
+        setContentView(R.layout.activity_camera);
 
         previewView = findViewById(R.id.preview_view);
         captureButton = findViewById(R.id.capture_button);
         flipButton = findViewById(R.id.flip_button);
         galleryButton = findViewById(R.id.gallery_button);
+        backButton = findViewById(R.id.back_button);
 
         cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
 
@@ -101,6 +99,10 @@ public class CameraActivity extends AppCompatActivity {
             pickMedia.launch(new PickVisualMediaRequest.Builder()
                     .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
                     .build());
+        });
+
+        backButton.setOnClickListener(v -> {
+            finish();
         });
 
         checkPermissions();
