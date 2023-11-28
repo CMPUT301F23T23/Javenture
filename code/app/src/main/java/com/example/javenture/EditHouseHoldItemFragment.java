@@ -21,7 +21,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.javenture.databinding.FragmentEditHouseholdItemBinding;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+import com.google.mlkit.vision.common.InputImage;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -37,6 +40,7 @@ public class EditHouseHoldItemFragment extends Fragment {
     private FragmentEditHouseholdItemBinding binding;
     private TextInputEditText makeEditText;
     private TextInputEditText modelEditText;
+    private TextInputLayout serialNumberTextInputLayout;
     private TextInputEditText serialNumberEditText;
     private TextInputEditText descriptionEditText;
     private TextInputEditText valueEditText;
@@ -47,6 +51,7 @@ public class EditHouseHoldItemFragment extends Fragment {
     private ImageAdapter imageAdapter;
     private Button addImageBtn;
     private ActivityResultLauncher<Void> cameraLauncher;
+    private ActivityResultLauncher<Void> serialNumberScannerLauncher;
     private ArrayList<ImageItem> imageItems;
 
     private HouseHoldItemViewModel houseHoldItemViewModel;
@@ -65,6 +70,38 @@ public class EditHouseHoldItemFragment extends Fragment {
                 Log.e(TAG, "no image selected");
             }
         });
+        serialNumberScannerLauncher = registerForActivityResult(new CameraActivityResultContract(), imageItem -> {
+            if (imageItem == null) {
+                Log.e(TAG, "no image selected");
+                return;
+            }
+            if (!imageItem.isLocal()) {
+                Log.e(TAG, "remote image not supported");
+                return;
+            }
+            InputImage image;
+            try {
+                image = InputImage.fromFilePath(context, imageItem.getLocalUri());
+            } catch (IOException e) {
+                Log.e(TAG, "failed to create InputImage from local uri");
+                return;
+            }
+            new SerialNumberScanner(image).scan(new SerialNumberScanner.OnCompleteListener() {
+                @Override
+                public void onSuccess(String serialNumber) {
+                    if (serialNumber.isEmpty()) {
+                        Log.d("TAG", "no serial number found");
+                        return;
+                    }
+                    serialNumberEditText.setText(serialNumber);
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    Log.e(TAG, "failed to scan serial number");
+                }
+            });
+        });
     }
 
     @Override
@@ -76,6 +113,7 @@ public class EditHouseHoldItemFragment extends Fragment {
         binding = FragmentEditHouseholdItemBinding.inflate(inflater, container, false);
         makeEditText = binding.makeEditText;
         modelEditText = binding.modelEditText;
+        serialNumberTextInputLayout = binding.serialNumberTextInputLayout;
         serialNumberEditText = binding.serialNumberEditText;
         descriptionEditText = binding.descriptionEditText;
         valueEditText = binding.valueEditText;
@@ -134,6 +172,9 @@ public class EditHouseHoldItemFragment extends Fragment {
 
                 dateEditText.setText(formattedDate);
             });
+        });
+        serialNumberTextInputLayout.setEndIconOnClickListener(v -> {
+            serialNumberScannerLauncher.launch(null);
         });
 
         binding.deleteButton.setOnClickListener(v -> {
