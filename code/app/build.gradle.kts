@@ -51,6 +51,7 @@ dependencies {
     implementation("androidx.camera:camera-lifecycle:1.3.0")
     implementation("androidx.camera:camera-view:1.3.0")
     implementation("com.github.bumptech.glide:glide:4.12.0")
+    implementation("com.google.mlkit:text-recognition:16.0.0")
     testImplementation("org.mockito:mockito-core:3.12.4")
     androidTestImplementation("androidx.test.ext:junit:1.2.0-alpha01")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.0-alpha01")
