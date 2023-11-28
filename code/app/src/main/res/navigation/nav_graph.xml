@@ -25,6 +25,11 @@
         android:label="Add Item"
         tools:layout="@layout/fragment_add_household_item">
 
+        <argument
+            android:name="item"
+            app:argType="com.example.javenture.HouseHoldItem"
+            app:nullable="true" />
+
         <action
             android:id="@+id/confirm_action"
             app:destination="@id/HouseHoldItemsFragment" />

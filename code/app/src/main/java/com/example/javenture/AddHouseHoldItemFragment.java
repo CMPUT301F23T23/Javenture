@@ -26,6 +26,7 @@ import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.javenture.databinding.FragmentAddHouseholdItemBinding;
 import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.mlkit.vision.common.InputImage;
@@ -101,6 +102,9 @@ public class AddHouseHoldItemFragment extends Fragment {
                 public void onSuccess(String serialNumber) {
                     if (serialNumber.isEmpty()) {
                         Log.d("TAG", "no serial number found");
+                        if (getView() != null) {
+                            Snackbar.make(getView(), "No serial number found", Snackbar.LENGTH_SHORT).show();
+                        }
                         return;
                     }
                     serialNumberEditText.setText(serialNumber);
@@ -140,6 +144,7 @@ public class AddHouseHoldItemFragment extends Fragment {
         MainActivity mainActivity = (MainActivity) getActivity();
         if (mainActivity != null) {
             mainActivity.setMenuItemVisibility(R.id.action_sort_and_filter, false);
+            mainActivity.setMenuItemVisibility(R.id.action_scan_barcode, false);
         }
 
         return binding.getRoot();
@@ -150,6 +155,11 @@ public class AddHouseHoldItemFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         NavController navController = NavHostFragment.findNavController(AddHouseHoldItemFragment.this);
+
+        AddHouseHoldItemFragmentArgs args = AddHouseHoldItemFragmentArgs.fromBundle(getArguments());
+        if (args.getItem() != null) {
+            updateUI(args.getItem());
+        }
 
         imageItems = new ArrayList<>();
         imageAdapter = new ImageAdapter(getContext(), imageItems);
@@ -250,4 +260,14 @@ public class AddHouseHoldItemFragment extends Fragment {
         binding = null;
     }
 
+    /**
+     * Update the UI based on the selected item
+     * @param item
+     */
+    private void updateUI(HouseHoldItem item) {
+        makeEditText.setText(item.getMake());
+        modelEditText.setText(item.getModel());
+        descriptionEditText.setText(item.getDescription());
+        valueEditText.setText(String.format("%.2f", item.getPrice()));
+    }
 }

@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.javenture.databinding.FragmentEditHouseholdItemBinding;
 import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.mlkit.vision.common.InputImage;
@@ -91,6 +92,9 @@ public class EditHouseHoldItemFragment extends Fragment {
                 public void onSuccess(String serialNumber) {
                     if (serialNumber.isEmpty()) {
                         Log.d("TAG", "no serial number found");
+                        if (getView() != null) {
+                            Snackbar.make(getView(), "No serial number found", Snackbar.LENGTH_SHORT).show();
+                        }
                         return;
                     }
                     serialNumberEditText.setText(serialNumber);
@@ -129,6 +133,7 @@ public class EditHouseHoldItemFragment extends Fragment {
         MainActivity mainActivity = (MainActivity) getActivity();
         if (mainActivity != null) {
             mainActivity.setMenuItemVisibility(R.id.action_sort_and_filter, false);
+            mainActivity.setMenuItemVisibility(R.id.action_scan_barcode, false);
         }
 
         return binding.getRoot();
