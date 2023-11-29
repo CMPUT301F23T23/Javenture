@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
@@ -120,6 +121,10 @@ public class HouseHoldItemsFragment extends Fragment {
         houseHoldItemViewModel = new ViewModelProvider(requireActivity()).get(HouseHoldItemViewModel.class);
 
         sortAndFilterViewModel = new ViewModelProvider(requireActivity()).get(SortAndFilterViewModel.class);
+        SortAndFilterOption defaultOption = new SortAndFilterOption();
+        defaultOption.setSortType("description");
+        defaultOption.setSortOption("ascending");
+        sortAndFilterViewModel.setSortAndFilterOption(defaultOption);
 
         houseHoldItemsAdapter = new HouseHoldItemsAdapter(this.getContext(), houseHoldItemViewModel);
         householdItemList.setAdapter(houseHoldItemsAdapter);
@@ -207,25 +212,29 @@ public class HouseHoldItemsFragment extends Fragment {
             @Override
             public void onMultiSelectionModeEnter() {
                 binding.addFab.setVisibility(View.GONE);
-                binding.exitMultiSelectionFab.setVisibility(View.VISIBLE);
-                binding.deleteFab.setVisibility(View.VISIBLE);
-                binding.tagAssignFab.setVisibility(View.VISIBLE);
+                binding.totalEstimatedValueHeader.setVisibility(View.GONE);
+                binding.totalEstimatedValue.setVisibility(View.GONE);
+                binding.multiDeleteButton.setVisibility(View.VISIBLE);
+                binding.multiTagAssignButton.setVisibility(View.VISIBLE);
+                binding.exitMultiSelectionModeButton.setVisibility(View.VISIBLE);
             }
 
             @Override
             public void onMultiSelectionModeExit() {
                 binding.addFab.setVisibility(View.VISIBLE);
-                binding.exitMultiSelectionFab.setVisibility(View.GONE);
-                binding.deleteFab.setVisibility(View.GONE);
-                binding.tagAssignFab.setVisibility(View.GONE);
+                binding.totalEstimatedValueHeader.setVisibility(View.VISIBLE);
+                binding.totalEstimatedValue.setVisibility(View.VISIBLE);
+                binding.multiDeleteButton.setVisibility(View.GONE);
+                binding.multiTagAssignButton.setVisibility(View.GONE);
+                binding.exitMultiSelectionModeButton.setVisibility(View.GONE);
             }
         });
 
-        binding.exitMultiSelectionFab.setOnClickListener(v -> {
+        binding.exitMultiSelectionModeButton.setOnClickListener(v -> {
             houseHoldItemsAdapter.exitMultiSelectionMode();
         });
 
-        binding.deleteFab.setOnClickListener(v -> {
+        binding.multiDeleteButton.setOnClickListener(v -> {
             List<HouseHoldItem> selectedItems = houseHoldItemsAdapter.getSelectedItems();
             if (selectedItems.size() == 0) {
                 Snackbar.make(binding.getRoot(), "No items selected", Snackbar.LENGTH_LONG)
@@ -247,7 +256,7 @@ public class HouseHoldItemsFragment extends Fragment {
                     .setNegativeButton("Cancel", null)  // Dismiss the dialog if "Cancel" is clicked
                     .show();
         });
-        binding.tagAssignFab.setOnClickListener(v -> {
+        binding.multiTagAssignButton.setOnClickListener(v -> {
             List<HouseHoldItem> selectedItems = houseHoldItemsAdapter.getSelectedItems();
             if (selectedItems.size() == 0) {
                 Snackbar.make(binding.getRoot(), "No items selected", Snackbar.LENGTH_LONG)

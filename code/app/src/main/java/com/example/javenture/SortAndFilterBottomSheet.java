@@ -303,7 +303,7 @@ public class SortAndFilterBottomSheet extends BottomSheetDialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         LayoutInflater inflater = requireActivity().getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.dialog_input, null);
-        TextInputLayout makeInputView = dialogView.findViewById(R.id.text_input_layout);
+        TextInputLayout makeInputView = dialogView.findViewById(R.id.chip_text_input_layout);
         makeInputView.setHint("Make");
         builder.setView(dialogView);
         builder.setTitle("Filter by make");

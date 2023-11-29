@@ -54,7 +54,11 @@ dependencies {
     implementation("com.google.mlkit:text-recognition:16.0.0")
     implementation("com.google.mlkit:barcode-scanning:17.2.0")
     testImplementation("org.mockito:mockito-core:3.12.4")
+    androidTestImplementation("androidx.test:rules:1.5.0");
     androidTestImplementation("androidx.test.ext:junit:1.2.0-alpha01")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.0-alpha01")
-    androidTestImplementation("androidx.test.espresso:espresso-contrib:3.6.0-alpha01")
+    androidTestImplementation("androidx.test.espresso:espresso-contrib:3.6.0-alpha01") {
+        exclude(group= "com.google.protobuf", module= "protobuf-lite")
+    }
+    implementation("androidx.tracing:tracing:1.1.0");
 }

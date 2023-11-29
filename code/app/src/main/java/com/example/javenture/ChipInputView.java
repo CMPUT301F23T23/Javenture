@@ -47,7 +47,7 @@ public class ChipInputView extends ConstraintLayout {
     private void init(Context context, AttributeSet attrs) {
         LayoutInflater.from(context).inflate(R.layout.chip_input_layout, this, true);
 
-        TextInputLayout textInputLayout = findViewById(R.id.text_input_layout);
+        TextInputLayout textInputLayout = findViewById(R.id.chip_text_input_layout);
         EditText editText = textInputLayout.getEditText();
         chipGroup = findViewById(R.id.chip_group);
 
@@ -102,7 +102,7 @@ public class ChipInputView extends ConstraintLayout {
             @Override
             public void afterTextChanged(Editable editable) {
                 String text = editable.toString();
-                if (!text.isEmpty() && (text.endsWith(",") || text.endsWith(" ") || text.endsWith("\n"))) {
+                if (!text.trim().isEmpty() && (text.endsWith(",") || text.endsWith(" ") || text.endsWith("\n"))) {
                     if (text.trim().length() == 0) {
                         return;
                     }
@@ -119,6 +119,9 @@ public class ChipInputView extends ConstraintLayout {
      */
     private void addNewChip(String text) {
         if (isWordDuplicate(text)) {
+            return;
+        }
+        if (text.trim().isEmpty()) {
             return;
         }
         Chip newChip = (Chip) LayoutInflater.from(getContext()).inflate(R.layout.standalone_chip, chipGroup, false);
@@ -152,7 +155,7 @@ public class ChipInputView extends ConstraintLayout {
             words.add(chip.getText().toString());
         }
         // add the last word in the EditText
-        TextInputLayout textInputLayout = findViewById(R.id.text_input_layout);
+        TextInputLayout textInputLayout = findViewById(R.id.chip_text_input_layout);
         EditText editText = textInputLayout.getEditText();
         if (editText.getText().toString().trim().length() > 0) {
             words.add(editText.getText().toString().trim());
@@ -199,7 +202,7 @@ public class ChipInputView extends ConstraintLayout {
      * @param hint hint
      */
     public void setHint(String hint) {
-        TextInputLayout textInputLayout = findViewById(R.id.text_input_layout);
+        TextInputLayout textInputLayout = findViewById(R.id.chip_text_input_layout);
         textInputLayout.setHint(hint);
     }
 }

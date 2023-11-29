@@ -176,7 +176,7 @@ public class AddHouseHoldItemFragment extends Fragment {
             builder.setTitleText("Select a date");
             MaterialDatePicker<Long> picker = builder.build();
 
-            picker.show(getParentFragmentManager(), picker.toString());
+            picker.show(getParentFragmentManager(), "date_picker");
 
             picker.addOnPositiveButtonClickListener(selection -> {
                 Instant instant = Instant.ofEpochMilli(selection);
@@ -192,7 +192,7 @@ public class AddHouseHoldItemFragment extends Fragment {
             serialNumberScannerLauncher.launch(null);
         });
 
-        binding.addFab.setOnClickListener(v -> {
+        binding.addItemButton.setOnClickListener(v -> {
             boolean isValid = true;
 
             String make = makeEditText.getText().toString();
