@@ -5,10 +5,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -63,6 +68,19 @@ public class HouseHoldItemsAdapter extends RecyclerView.Adapter<HouseHoldItemsAd
         holder.make.setText(houseHoldItem.getMake());
         holder.datePurchased.setText(houseHoldItem.getDatePurchased().toString());
         holder.price.setText(String.format("%.2f", houseHoldItem.getPrice()));
+        if (houseHoldItem.getImageItems().size() > 0) {
+            holder.imageView.setVisibility(View.VISIBLE);
+            ImageItem imageItem = houseHoldItem.getImageItems().get(0);
+            if (imageItem.isLocal()) {
+                holder.imageView.setImageURI(imageItem.getLocalUri());
+            } else {
+                Glide.with(context)
+                        .load(imageItem.getRemoteUrl())
+                        .into(holder.imageView);
+            }
+        } else {
+            holder.imageView.setVisibility(View.GONE);
+        }
 
         if (isInMultiSelectMode) {
             holder.checkbox.setVisibility(View.VISIBLE);
@@ -155,6 +173,7 @@ public class HouseHoldItemsAdapter extends RecyclerView.Adapter<HouseHoldItemsAd
         TextView datePurchased;
         TextView price;
         CheckBox checkbox;
+        ImageView imageView;
 
         HouseHoldItemsViewHolder(View itemView) {
             super(itemView);
@@ -164,6 +183,7 @@ public class HouseHoldItemsAdapter extends RecyclerView.Adapter<HouseHoldItemsAd
             datePurchased = itemView.findViewById(R.id.date_purchased);
             price = itemView.findViewById(R.id.price);
             checkbox = itemView.findViewById(R.id.checkbox);
+            imageView = itemView.findViewById(R.id.item_image_view);
 
             itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
