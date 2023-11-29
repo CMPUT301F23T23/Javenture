@@ -102,7 +102,7 @@ public class ChipInputView extends ConstraintLayout {
             @Override
             public void afterTextChanged(Editable editable) {
                 String text = editable.toString();
-                if (!text.isEmpty() && (text.endsWith(",") || text.endsWith(" ") || text.endsWith("\n"))) {
+                if (!text.trim().isEmpty() && (text.endsWith(",") || text.endsWith(" ") || text.endsWith("\n"))) {
                     if (text.trim().length() == 0) {
                         return;
                     }
@@ -119,6 +119,9 @@ public class ChipInputView extends ConstraintLayout {
      */
     private void addNewChip(String text) {
         if (isWordDuplicate(text)) {
+            return;
+        }
+        if (text.trim().isEmpty()) {
             return;
         }
         Chip newChip = (Chip) LayoutInflater.from(getContext()).inflate(R.layout.standalone_chip, chipGroup, false);
