@@ -3,15 +3,22 @@ package com.example.javenture;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
+import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
@@ -20,7 +27,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.javenture.databinding.FragmentHouseholdItemsBinding;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.mlkit.vision.common.InputImage;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,9 +41,70 @@ public class HouseHoldItemsFragment extends Fragment {
     private HouseHoldItemsAdapter houseHoldItemsAdapter;
     private HouseHoldItemViewModel houseHoldItemViewModel;
     private SortAndFilterViewModel sortAndFilterViewModel;
+    private ActivityResultLauncher<Void> barcodeScannerLauncher;
+    private BarcodeRepository barcodeRepository;
+    private NavController navController;
     private static boolean snackbarShownThisSession = false;
+    private static String TAG = "HouseHoldItemsFragment";
 
 
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        barcodeScannerLauncher = registerForActivityResult(new CameraActivityResultContract(), imageItem -> {
+            if (imageItem == null) {
+                Log.e(TAG, "no image selected");
+                return;
+            }
+            if (!imageItem.isLocal()) {
+                Log.e(TAG, "remote image not supported");
+                return;
+            }
+            InputImage image;
+            try {
+                image = InputImage.fromFilePath(context, imageItem.getLocalUri());
+            } catch (IOException e) {
+                Log.e(TAG, "failed to create InputImage from local uri");
+                return;
+            }
+            new BarcodeScanner(image).scan(new BarcodeScanner.OnCompleteListener() {
+                @Override
+                public void onSuccess(String barcodeValue) {
+                    if (barcodeValue.isEmpty()) {
+                        Snackbar.make(binding.getRoot(), "No barcode found", Snackbar.LENGTH_LONG)
+                                .setAnchorView(binding.totalMonthlyChargeContainer)
+                                .setAction("Action", null).show();
+                        Log.d(TAG, "no barcode found");
+                        return;
+                    }
+                    Log.d(TAG, "barcode value: " + barcodeValue);
+                    barcodeRepository.getHouseHoldItem(barcodeValue, new BarcodeRepository.OnCompleteListener() {
+                        @Override
+                        public void onSuccess(HouseHoldItem item) {
+                            if (item == null) {
+                                Snackbar.make(binding.getRoot(), "No item found", Snackbar.LENGTH_LONG)
+                                        .setAnchorView(binding.totalMonthlyChargeContainer)
+                                        .setAction("Action", null).show();
+                                return;
+                            }
+                            HouseHoldItemsFragmentDirections.AddItemAction action = HouseHoldItemsFragmentDirections.addItemAction(item);
+                            navController.navigate(action);
+                        }
+
+                        @Override
+                        public void onFailure(Exception e) {
+                            Log.e(TAG, "failed to get item from barcode: ", e);
+                        }
+                    });
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    Log.e(TAG, "failed scan to barcode: ", e);
+                }
+            });
+        });
+    }
     @Override
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container,
@@ -54,6 +124,7 @@ public class HouseHoldItemsFragment extends Fragment {
         houseHoldItemsAdapter = new HouseHoldItemsAdapter(this.getContext(), houseHoldItemViewModel);
         householdItemList.setAdapter(houseHoldItemsAdapter);
 
+        barcodeRepository = new BarcodeRepository();
 
         return binding.getRoot();
     }
@@ -61,7 +132,27 @@ public class HouseHoldItemsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        NavController navController = NavHostFragment.findNavController(HouseHoldItemsFragment.this);
+        navController = NavHostFragment.findNavController(HouseHoldItemsFragment.this);
+
+        requireActivity().addMenuProvider(new MenuProvider() {
+            @Override
+            public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
+                menuInflater.inflate(R.menu.menu_main, menu);
+            }
+
+            @Override
+            public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
+                if (menuItem.getItemId() == R.id.action_sort_and_filter) {
+                    SortAndFilterBottomSheet sortAndFilterBottomSheet = new SortAndFilterBottomSheet();
+                    sortAndFilterBottomSheet.show(getChildFragmentManager(), "sort_and_filter_bottom_sheet");
+                    return true;
+                } else if (menuItem.getItemId() == R.id.action_scan_barcode) {
+                    barcodeScannerLauncher.launch(null);
+                    return true;
+                }
+                return false;
+            }
+        }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
 
         // TODO check if sign in works
         authService.signInAnonymously(new AuthenticationService.OnSignInListener() {
@@ -100,7 +191,8 @@ public class HouseHoldItemsFragment extends Fragment {
         });
 
         binding.addFab.setOnClickListener(v -> {
-            navController.navigate(R.id.add_item_action);
+            HouseHoldItemsFragmentDirections.AddItemAction action = HouseHoldItemsFragmentDirections.addItemAction(null);
+            navController.navigate(action);
         });
 
         houseHoldItemsAdapter.setOnItemClickListener(new HouseHoldItemsAdapter.OnItemClickListener() {

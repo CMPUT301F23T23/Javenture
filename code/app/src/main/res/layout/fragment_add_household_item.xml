@@ -93,7 +93,6 @@
                 android:id="@+id/description_edit_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:maxLength="20"
                 />
 
         </com.google.android.material.textfield.TextInputLayout>

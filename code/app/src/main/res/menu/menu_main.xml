@@ -3,6 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.example.javenture.MainActivity">
     <item
+        android:id="@+id/action_scan_barcode"
+        android:title="Scan barcode"
+        android:icon="@drawable/barcode_scan_icon"
+        app:showAsAction="always"/>
+    <item
         android:id="@+id/action_sort_and_filter"
         android:title="Sort and filter"
         android:icon="@drawable/baseline_sort_24"

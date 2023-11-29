@@ -27,7 +27,11 @@ public class HouseHoldItem implements Parcelable {
     private List<ImageItem> imageItems;
     private List<String> tags;
 
-    public HouseHoldItem() { }
+    public HouseHoldItem() {
+        imageItems = new ArrayList<>();
+        tags = new ArrayList<>();
+    }
+
     public HouseHoldItem(String id, String description, String make, LocalDate datePurchased, double price, String serialNumber, String comment, String model, List<ImageItem> imageItems, List<String> tags) {
         this.id = id;
         this.description = description;
