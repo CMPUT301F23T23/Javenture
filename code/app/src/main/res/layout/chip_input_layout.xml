@@ -6,7 +6,7 @@
     android:layout_height="wrap_content">
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/text_input_layout"
+        android:id="@+id/chip_text_input_layout"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -16,6 +16,7 @@
         app:layout_constraintTop_toTopOf="parent" >
 
         <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/chip_text_input_edit_text"
             android:layout_width="match_parent"
             android:gravity="bottom"
             android:paddingBottom="22dp"

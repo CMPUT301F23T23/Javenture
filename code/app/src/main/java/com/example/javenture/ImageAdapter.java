@@ -75,7 +75,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                  .into(dialogImageView);
         }
 
-        Button deleteButton = dialog.findViewById(R.id.delete_button);
+        Button deleteButton = dialog.findViewById(R.id.delete_image_button);
         deleteButton.setOnClickListener(v -> {
             imageItems.remove(pos);
             notifyItemRemoved(pos);
