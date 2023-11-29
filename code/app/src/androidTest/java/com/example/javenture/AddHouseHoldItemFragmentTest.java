@@ -64,6 +64,7 @@ public class AddHouseHoldItemFragmentTest {
 
     @Before
     public void setUp() {
+        FirebaseAuth.getInstance().signOut();
         FirebaseAuth.getInstance().signInAnonymously();
         try {
             Thread.sleep(2000);

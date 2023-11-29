@@ -65,6 +65,7 @@ public class EditHouseHoldItemFragmentTest {
 
     @Before
     public void setUp() {
+        FirebaseAuth.getInstance().signOut();
         FirebaseAuth.getInstance().signInAnonymously();
         try {
             Thread.sleep(2000);
