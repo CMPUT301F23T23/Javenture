@@ -31,9 +31,9 @@ public class ImageItem implements Parcelable {
     }
 
     public void setLocalUri(Uri localUri) {
-        // ignore if remote url is already set
         if (this.remoteUrl != null) {
-            return;
+            // remove remote url if already set
+            this.remoteUrl = null;
         }
         this.localUri = localUri;
     }

@@ -7,6 +7,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Interacts with the database to search for items that match with the barcodes
+ */
 public class BarcodeRepository {
     private FirebaseFirestore db;
 
@@ -14,6 +17,11 @@ public class BarcodeRepository {
         db = FirebaseFirestore.getInstance();
     }
 
+    /**
+     * Given a string of barcode, get an item that match with the barcode
+     * @param barcode barcode string
+     * @param listener callback for when the item is found or not found
+     */
     public void getHouseHoldItem(String barcode, OnCompleteListener listener) {
         db.collection("barcodes")
                 .document(barcode)
@@ -43,6 +51,9 @@ public class BarcodeRepository {
         return item;
     }
 
+    /**
+     * Callback for when the item is found or not found
+     */
     public interface OnCompleteListener {
         void onSuccess(HouseHoldItem item);
         void onFailure(Exception e);

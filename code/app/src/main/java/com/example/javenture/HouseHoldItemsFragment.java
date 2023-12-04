@@ -34,6 +34,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class is a Fragment that displays the list of HouseHoldItem objects in a RecyclerView.
+ */
 public class HouseHoldItemsFragment extends Fragment {
 
     private FragmentHouseholdItemsBinding binding;
@@ -121,10 +124,6 @@ public class HouseHoldItemsFragment extends Fragment {
         houseHoldItemViewModel = new ViewModelProvider(requireActivity()).get(HouseHoldItemViewModel.class);
 
         sortAndFilterViewModel = new ViewModelProvider(requireActivity()).get(SortAndFilterViewModel.class);
-        SortAndFilterOption defaultOption = new SortAndFilterOption();
-        defaultOption.setSortType("description");
-        defaultOption.setSortOption("ascending");
-        sortAndFilterViewModel.setSortAndFilterOption(defaultOption);
 
         houseHoldItemsAdapter = new HouseHoldItemsAdapter(this.getContext(), houseHoldItemViewModel);
         householdItemList.setAdapter(houseHoldItemsAdapter);
@@ -159,7 +158,6 @@ public class HouseHoldItemsFragment extends Fragment {
             }
         }, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
 
-        // TODO check if sign in works
         authService.signInAnonymously(new AuthenticationService.OnSignInListener() {
             @Override
             public void onSignIn() {
@@ -302,6 +300,9 @@ public class HouseHoldItemsFragment extends Fragment {
         binding = null;
     }
 
+    /**
+     * Update the total estimated value view to the current total estimated value
+     */
     private void updateTotalEstimatedValue() {
         binding.totalEstimatedValue.setText(String.format("%.2f", houseHoldItemViewModel.getTotalEstimatedValue()));
     }
