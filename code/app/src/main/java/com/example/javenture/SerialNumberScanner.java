@@ -58,6 +58,9 @@ public class SerialNumberScanner {
         return "";
     }
 
+    /**
+     * Listener for the scan event
+     */
     public interface OnCompleteListener {
         void onSuccess(String serialNumber);
         void onFailure(Exception e);

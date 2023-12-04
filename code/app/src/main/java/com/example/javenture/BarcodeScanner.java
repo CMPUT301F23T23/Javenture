@@ -7,6 +7,9 @@ import com.google.mlkit.vision.barcode.BarcodeScanning;
 import com.google.mlkit.vision.barcode.common.Barcode;
 import com.google.mlkit.vision.common.InputImage;
 
+/**
+ * Scans barcodes from an image
+ */
 public class BarcodeScanner {
     private static final String TAG = "BarcodeScanner";
     private InputImage image;
@@ -21,6 +24,10 @@ public class BarcodeScanner {
         scanner = BarcodeScanning.getClient(options);
     }
 
+    /**
+     * Scans the image for a barcode and returns the barcode value
+     * @param listener callback for when the barcode is found or not found
+     */
     public void scan(OnCompleteListener listener) {
         scanner.process(image)
                 .addOnSuccessListener(barcodes -> {
@@ -38,6 +45,9 @@ public class BarcodeScanner {
                 .addOnFailureListener(listener::onFailure);
     }
 
+    /**
+     * Callback for when the barcode is found or not found
+     */
     public interface OnCompleteListener {
         void onSuccess(String barcodeValue);
         void onFailure(Exception e);
