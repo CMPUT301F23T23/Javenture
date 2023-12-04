@@ -10,6 +10,9 @@ import androidx.test.espresso.ViewAction;
 
 import org.hamcrest.Matcher;
 
+/**
+ * This helper class is used to click on a view if it is not checked
+ */
 public class ConditionalClickAction implements ViewAction {
     @Override
     public Matcher<View> getConstraints() {

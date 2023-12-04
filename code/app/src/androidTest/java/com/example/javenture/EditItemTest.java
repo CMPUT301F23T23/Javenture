@@ -45,6 +45,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * This class tests the edit item functionality
+ */
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public class EditItemTest {

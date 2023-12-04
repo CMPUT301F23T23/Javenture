@@ -36,6 +36,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+/**
+ * This class tests scanning barcode and serial number functionality
+ */
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public class ScanningTest {

@@ -11,6 +11,9 @@ import android.net.Uri;
 
 import org.junit.Test;
 
+/**
+ * Unit tests for ImageItem class
+ */
 public class ImageItemTest {
 
     @Test

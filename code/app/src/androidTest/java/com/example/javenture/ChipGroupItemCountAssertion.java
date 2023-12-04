@@ -9,6 +9,9 @@ import androidx.test.espresso.ViewAssertion;
 
 import com.google.android.material.chip.ChipGroup;
 
+/**
+ * This helper class is used to assert the number of chips in a ChipGroup
+ */
 public class ChipGroupItemCountAssertion implements ViewAssertion {
     private final int expectedCount;
 

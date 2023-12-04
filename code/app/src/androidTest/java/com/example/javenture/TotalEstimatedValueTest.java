@@ -29,6 +29,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * This class tests whether the total estimated value is up to date
+ */
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public class TotalEstimatedValueTest {

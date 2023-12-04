@@ -35,6 +35,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * This class tests the sorting and filtering functionality
+ */
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public class SortAndFilterTest {

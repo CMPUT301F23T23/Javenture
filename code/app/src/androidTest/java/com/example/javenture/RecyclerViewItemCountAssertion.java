@@ -8,6 +8,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.espresso.NoMatchingViewException;
 import androidx.test.espresso.ViewAssertion;
 
+/**
+ * This helper class is used to assert the number of items in a RecyclerView
+ */
 public class RecyclerViewItemCountAssertion implements ViewAssertion {
     private final int expectedCount;
 

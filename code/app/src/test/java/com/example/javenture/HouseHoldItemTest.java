@@ -13,6 +13,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Unit tests for HouseHoldItem class
+ */
 public class HouseHoldItemTest {
     @Test
     public void testToMap() {

@@ -12,6 +12,9 @@ import com.google.android.material.textfield.TextInputLayout;
 
 import org.hamcrest.Matcher;
 
+/**
+ * This helper class is used to click on the end icon inside a TextInputLayout
+ */
 public class ClickEndIconViewAction implements ViewAction {
     @Override
     public Matcher<View> getConstraints() {

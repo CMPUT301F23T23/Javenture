@@ -49,6 +49,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 
+/**
+ * This class tests the photo functionality
+ */
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public class PhotoTest {

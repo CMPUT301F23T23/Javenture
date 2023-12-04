@@ -25,6 +25,9 @@ import java.util.Locale;
 import java.util.Map;
 import androidx.core.util.Pair;
 
+/**
+ * Unit tests for sort and filter functionality
+ */
 @RunWith(MockitoJUnitRunner.class)
 public class SortAndFilterTest {
 

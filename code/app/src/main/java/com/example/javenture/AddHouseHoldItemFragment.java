@@ -44,6 +44,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * This class represents the fragment for adding a new household item
+ */
 public class AddHouseHoldItemFragment extends Fragment {
 
     private final String TAG = "AddHouseHoldItemFrag";

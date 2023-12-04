@@ -14,6 +14,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+/**
+ * This class tests whether the user is logged in when the app opens up
+ */
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public class UserProfileTest {

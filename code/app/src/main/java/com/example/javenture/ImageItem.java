@@ -7,6 +7,9 @@ import android.os.Parcelable;
 import androidx.annotation.NonNull;
 
 
+/**
+ * This class represents an image item
+ */
 public class ImageItem implements Parcelable {
     private Uri localUri;
     private String remoteUrl;
