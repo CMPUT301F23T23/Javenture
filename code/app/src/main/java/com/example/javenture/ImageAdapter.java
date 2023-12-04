@@ -16,6 +16,9 @@ import com.bumptech.glide.Glide;
 
 import java.util.List;
 
+/**
+ * This class is used to display the list of ImageItem objects in a RecyclerView.
+ */
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> {
 
     private List<ImageItem> imageItems;
@@ -61,6 +64,12 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
         }
     }
 
+    /**
+     * Show a dialog to display the image in a larger size
+     * User can delete the image from the dialog
+     *
+     * @param pos position of the image in the list
+     */
     private void showImageDialog(int pos) {
         ImageItem imageItem = imageItems.get(pos);
 

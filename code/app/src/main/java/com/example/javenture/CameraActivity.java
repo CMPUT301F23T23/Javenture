@@ -31,6 +31,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+/**
+ * This class is an Activity that allows the user to take a photo
+ */
 public class CameraActivity extends AppCompatActivity {
     private static final String TAG = "CameraFragment";
     private static final int REQUEST_PERMISSIONS_CODE = 1;
@@ -109,6 +112,9 @@ public class CameraActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Checks if the app has the required permissions and requests them if not
+     */
     private void checkPermissions() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED ||
                 ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_DENIED) {
@@ -118,6 +124,9 @@ public class CameraActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Requests the required permissions
+     */
     private void requestPermissions() {
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_MEDIA_IMAGES},
@@ -144,6 +153,9 @@ public class CameraActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Prepare the views and start the camera
+     */
     private void startCamera() {
         final ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(this);
 
@@ -165,6 +177,10 @@ public class CameraActivity extends AppCompatActivity {
         }, ContextCompat.getMainExecutor(this));
     }
 
+    /**
+     * Creates the output file options for the image capture
+     * @return output file options
+     */
     private ImageCapture.OutputFileOptions createOutputFileOptions() {
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
@@ -174,6 +190,10 @@ public class CameraActivity extends AppCompatActivity {
         return new ImageCapture.OutputFileOptions.Builder(photoFile).build();
     }
 
+    /**
+     * Returns the image uri to the previous activity
+     * @param imageUri image uri
+     */
     private void returnResult(Uri imageUri) {
         ImageItem imageItem = new ImageItem(imageUri);
         Intent resultIntent = new Intent();

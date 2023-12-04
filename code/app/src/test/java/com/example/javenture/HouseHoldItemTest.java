@@ -1,5 +1,6 @@
 package com.example.javenture;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -7,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +16,8 @@ import java.util.Map;
 public class HouseHoldItemTest {
     @Test
     public void testToMap() {
-        HouseHoldItem item = new HouseHoldItem("id1", "desc", "make", LocalDate.of(2020, 1, 1), 100.0, "serial", "comment", "model", null, Arrays.asList("tag1", "tag2"));
+        ArrayList<ImageItem> imageItems = new ArrayList<>(Arrays.asList(new ImageItem("url1"), new ImageItem("url2")));
+        HouseHoldItem item = new HouseHoldItem("id1", "desc", "make", LocalDate.of(2020, 1, 1), 100.0, "serial", "comment", "model", imageItems, Arrays.asList("tag1", "tag2"));
         Map<String, Object> map = item.toMap();
 
         assertEquals("desc", map.get("description"));
@@ -25,7 +28,7 @@ public class HouseHoldItemTest {
         assertEquals("comment", map.get("comment"));
         assertEquals("model", map.get("model"));
         assertTrue(map.get("tags") instanceof List);
-        // TODO: photos
+        assertEquals(Arrays.asList("url1", "url2"), (List<String>) map.get("photoUrls"));
     }
 
     @Test

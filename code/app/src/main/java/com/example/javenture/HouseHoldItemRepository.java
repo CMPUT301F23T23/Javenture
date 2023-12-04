@@ -577,6 +577,11 @@ public class HouseHoldItemRepository {
                 });
     }
 
+    /**
+     * Get the photo urls of an item from db
+     * @param id id of item
+     * @param listener callback for when the photo urls are fetched
+     */
     public void getPhotoUrlsOfItem(String id, OnSuccessListener<List<String>> listener) {
         if (authService.getCurrentUser() == null) {
             return;

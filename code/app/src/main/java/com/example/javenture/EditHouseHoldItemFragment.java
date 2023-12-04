@@ -34,6 +34,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * This class is a Fragment that allows the user to edit a household item
+ */
 public class EditHouseHoldItemFragment extends Fragment {
 
     private final String TAG = "EditHouseHoldItemFrag";

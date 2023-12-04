@@ -29,6 +29,9 @@ public class ImageRepository {
         this.authService = authService;
     }
 
+    /**
+     * Listener for the upload event
+     */
     public interface OnUploadListener {
         void onUpload(List<ImageItem> remoteImageItems);
         void onFailure();

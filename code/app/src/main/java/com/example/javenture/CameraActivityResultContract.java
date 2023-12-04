@@ -8,6 +8,9 @@ import androidx.activity.result.contract.ActivityResultContract;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+/**
+ * Starts CameraActivity and returns the image taken
+ */
 public class CameraActivityResultContract extends ActivityResultContract<Void, ImageItem> {
     @NonNull
     @Override
