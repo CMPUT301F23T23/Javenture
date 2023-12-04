@@ -1,6 +1,5 @@
 package com.example.javenture;
 
-
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
@@ -8,36 +7,17 @@ import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
-import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static androidx.test.espresso.matcher.ViewMatchers.withClassName;
-import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.is;
-
-import android.Manifest;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewParent;
 
 import androidx.test.espresso.ViewInteraction;
 import androidx.test.espresso.action.ViewActions;
-import androidx.test.espresso.contrib.PickerActions;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.rule.GrantPermissionRule;
 
-import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.firebase.auth.FirebaseAuth;
 
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.Matchers;
-import org.hamcrest.TypeSafeMatcher;
-import org.hamcrest.core.IsInstanceOf;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -51,20 +31,23 @@ import java.util.List;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-public class AddHouseHoldItemFragmentTest {
+public class TotalEstimatedValueTest {
 
     @Rule
     public ActivityScenarioRule<MainActivity> mActivityScenarioRule =
             new ActivityScenarioRule<>(MainActivity.class);
 
-    @Rule
-    public GrantPermissionRule permissionRule = GrantPermissionRule.grant(
-            Manifest.permission.CAMERA,
-            Manifest.permission.READ_MEDIA_IMAGES);
-
     @Before
     public void setUp() {
-        FirebaseAuth.getInstance().signOut();
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            FirebaseAuth.getInstance().signOut();
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
         FirebaseAuth.getInstance().signInAnonymously();
         try {
             Thread.sleep(2000);
@@ -79,7 +62,7 @@ public class AddHouseHoldItemFragmentTest {
     }
 
     @Test
-    public void addItemTest() {
+    public void totalEstimatedValueTest() {
         ViewInteraction floatingActionButton = onView(withId(R.id.add_fab));
         floatingActionButton.perform(click());
         try {
@@ -87,19 +70,21 @@ public class AddHouseHoldItemFragmentTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        Double value1 = 748.99;
+        Double value2 = 1249.99;
         HouseHoldItem item = new HouseHoldItem(
                 "",
                 "55-Inch Class Crystal UHD Smart TV",
                 "Samsung",
                 LocalDate.of(2020, 1, 1),
-                748.99,
+                value1,
                 "SD23859GB",
                 "This is a 55 inch TV",
                 "CU7000",
                 new ArrayList<>(),
                 new ArrayList<>(Arrays.asList("tv", "electronics", "samsung"))
         );
-        takePhoto();
         fillData(item);
         onView(withId(R.id.add_item_button)).perform(scrollTo(), click());
         try {
@@ -108,6 +93,31 @@ public class AddHouseHoldItemFragmentTest {
             e.printStackTrace();
         }
         onView(withId(R.id.household_item_list)).check(matches(hasDescendant(withText(item.getDescription()))));
+
+        floatingActionButton.perform(click());
+        HouseHoldItem item2 = new HouseHoldItem(
+                "",
+                "65-Inch Class Crystal UHD Smart TV",
+                "Samsung",
+                LocalDate.of(2021, 1, 1),
+                value2,
+                "SD143289D3",
+                "This is a 65 inch TV",
+                "CU9000",
+                new ArrayList<>(),
+                new ArrayList<>(Arrays.asList("tv", "electronics", "samsung"))
+        );
+
+        fillData(item2);
+        onView(withId(R.id.add_item_button)).perform(scrollTo(), click());
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        onView(withId(R.id.household_item_list)).check(matches(hasDescendant(withText(item2.getDescription()))));
+
+        onView(withId(R.id.total_estimated_value)).check(matches(withText(String.valueOf(value1 + value2))));
     }
 
     private void fillData(HouseHoldItem item) {
@@ -127,18 +137,6 @@ public class AddHouseHoldItemFragmentTest {
             e.printStackTrace();
         }
     }
-    private void takePhoto() {
-        onView(withId(R.id.add_image_button)).perform(click());
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        onView(withId(R.id.capture_button)).perform(click());
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
+
 }
+

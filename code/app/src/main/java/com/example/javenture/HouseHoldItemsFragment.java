@@ -121,10 +121,6 @@ public class HouseHoldItemsFragment extends Fragment {
         houseHoldItemViewModel = new ViewModelProvider(requireActivity()).get(HouseHoldItemViewModel.class);
 
         sortAndFilterViewModel = new ViewModelProvider(requireActivity()).get(SortAndFilterViewModel.class);
-        SortAndFilterOption defaultOption = new SortAndFilterOption();
-        defaultOption.setSortType("description");
-        defaultOption.setSortOption("ascending");
-        sortAndFilterViewModel.setSortAndFilterOption(defaultOption);
 
         houseHoldItemsAdapter = new HouseHoldItemsAdapter(this.getContext(), houseHoldItemViewModel);
         householdItemList.setAdapter(houseHoldItemsAdapter);
